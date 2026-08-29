@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>实时公共聊天室 UI 预览 — 双主题 | CodingHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg-primary:#09090b;--bg-secondary:#0f0f12;--bg-card:rgba(15,15,20,0.7);--bg-glass:rgba(255,255,255,0.03);--accent-1:#8b5cf6;--accent-2:#06b6d4;--accent-3:#ec4899;--text-primary:#fafafa;--text-secondary:#a1a1aa;--text-muted:#52525b;--border-color:rgba(255,255,255,0.08);--border-glow:rgba(139,92,246,0.3);--shadow-sm:0 2px 8px rgba(0,0,0,0.3);--shadow-md:0 8px 24px rgba(0,0,0,0.4);--shadow-glow:0 0 40px rgba(139,92,246,0.15);--focus-ring:#00FFFF;--msg-self-bg:rgba(139,92,246,0.18);--msg-self-border:rgba(139,92,246,0.4);--msg-other-bg:rgba(255,255,255,0.04);--msg-other-border:rgba(255,255,255,0.1);--msg-guest-bg:rgba(236,72,153,0.12);--msg-guest-border:rgba(236,72,153,0.3);--danger:#EF4444;--online:#10b981;--overlay-bg:rgba(0,0,0,0.6);--drawer-bg:rgba(15,15,20,0.96);--input-bg:rgba(255,255,255,0.03);--input-disabled:rgba(255,255,255,0.04)}
+[data-theme="light"]{--bg-primary:#f8fafc;--bg-secondary:#f1f5f9;--bg-card:rgba(255,255,255,0.9);--bg-glass:rgba(255,255,255,0.8);--accent-1:#7c3aed;--accent-2:#0891b2;--accent-3:#db2777;--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#94a3b8;--border-color:rgba(0,0,0,0.08);--border-glow:rgba(124,58,237,0.3);--shadow-sm:0 2px 8px rgba(0,0,0,0.08);--shadow-md:0 8px 24px rgba(0,0,0,0.12);--shadow-glow:0 0 40px rgba(124,58,237,0.1);--focus-ring:#7c3aed;--msg-self-bg:rgba(124,58,237,0.12);--msg-self-border:rgba(124,58,237,0.3);--msg-other-bg:rgba(0,0,0,0.03);--msg-other-border:rgba(0,0,0,0.08);--msg-guest-bg:rgba(219,39,119,0.08);--msg-guest-border:rgba(219,39,119,0.25);--danger:#EF4444;--online:#059669;--overlay-bg:rgba(0,0,0,0.4);--drawer-bg:rgba(255,255,255,0.96);--input-bg:rgba(0,0,0,0.03);--input-disabled:rgba(0,0,0,0.04)}
+body{font-family:'Sora',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;transition:background .4s,color .4s;position:relative;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0}
+[data-theme="dark"] body::before{background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(139,92,246,0.15),transparent),radial-gradient(ellipse 60% 40% at 80% 50%,rgba(6,182,212,0.08),transparent),radial-gradient(ellipse 50% 30% at 20% 80%,rgba(236,72,153,0.06),transparent)}
+[data-theme="light"] body::before{background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(124,58,237,0.08),transparent),radial-gradient(ellipse 60% 40% at 80% 50%,rgba(8,145,178,0.05),transparent)}
+.grid-overlay{position:fixed;inset:0;pointer-events:none;z-index:0}
+[data-theme="dark"] .grid-overlay{background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:60px 60px}
+[data-theme="light"] .grid-overlay{display:none}
+.container{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:32px 20px 80px}
+h1{font-size:28px;font-weight:700;margin-bottom:4px}.gradient{background:linear-gradient(135deg,var(--accent-1),var(--accent-2),var(--accent-3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+h2{font-size:20px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border-color)}
+h3{font-size:15px;font-weight:500;margin:24px 0 12px;color:var(--text-secondary)}
+p{color:var(--text-secondary);line-height:1.6;font-size:14px}.subtitle{color:var(--text-muted);font-size:14px;margin-bottom:8px}
+code{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent-2);background:rgba(6,182,212,0.08);padding:2px 6px;border-radius:4px}
+.page-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:32px}
+.theme-toggle{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-glass);cursor:pointer;font-family:'Sora',sans-serif;font-size:14px;font-weight:500;color:var(--text-primary);transition:all .2s;backdrop-filter:blur(10px)}
+.theme-toggle:hover{border-color:var(--accent-1);box-shadow:0 0 20px var(--border-glow)}
+.theme-toggle:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}.theme-toggle .icon{width:18px;height:18px;flex-shrink:0}
+.glass-card{background:var(--bg-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--border-color);border-radius:16px;padding:24px;margin-bottom:16px;transition:all .3s}
+.state-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:16px;background:var(--bg-secondary);border-radius:8px;margin-bottom:12px}
+.state-label{min-width:130px;font-family:'Space Mono',monospace;font-size:13px;color:var(--text-muted)}
+.responsive-grid{display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}
+@media(max-width:1023px){.responsive-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:639px){.responsive-grid{grid-template-columns:1fr}}
+.viewport-tag{display:inline-block;padding:2px 8px;background:var(--accent-1);color:#FFF;font-family:'Space Mono',monospace;font-size:11px;font-weight:600;border-radius:4px;margin-bottom:8px}
+.checklist{font-size:14px;line-height:2.2;color:var(--text-secondary);padding-left:24px}.checklist li::marker{color:#10b981}
+.icon-svg{width:18px;height:18px;flex-shrink:0}
+.theme-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;font-family:'Space Mono',monospace;margin-left:8px;vertical-align:middle}
+.theme-badge-dk{background:#8b5cf6;color:#FFF}.theme-badge-lt{background:#fbbf24;color:#0f172a}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ---- Chat Launcher 悬浮按钮 ---- */
+.launcher-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:16px;background:var(--bg-glass);border:1px solid var(--border-color);box-shadow:var(--shadow-md);color:var(--accent-1);cursor:pointer;transition:all .2s;backdrop-filter:blur(12px)}
+.launcher-btn:hover{border-color:var(--border-glow);box-shadow:var(--shadow-glow)}
+.launcher-btn:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.launcher-btn .unread-badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;background:var(--accent-3);color:#FFF;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;box-shadow:0 0 0 2px var(--bg-primary)}
+
+/* ---- Chat Room 容器 ---- */
+.chat-demo{max-width:860px;margin:0 auto}
+.chat-panel{display:flex;flex-direction:column;background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;overflow:hidden;backdrop-filter:blur(20px);box-shadow:var(--shadow-md)}
+.chat-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border-color)}
+.chat-title{font-size:16px;font-weight:600;color:var(--text-primary)}
+.chat-meta{display:flex;align-items:center;gap:16px;font-size:13px;color:var(--text-secondary)}
+.online-count{display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace}
+.online-dot{width:8px;height:8px;border-radius:50%;background:var(--online);box-shadow:0 0 8px var(--online)}
+.conn-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:500}
+.conn-on{color:var(--online);background:color-mix(in srgb,var(--online) 14%,transparent)}
+.conn-off{color:var(--accent-3);background:color-mix(in srgb,var(--accent-3) 14%,transparent)}
+.msg-list{display:flex;flex-direction:column;gap:14px;padding:20px;min-height:260px;max-height:360px;overflow-y:auto}
+.msg-row{display:flex;flex-direction:column;gap:4px;max-width:78%}
+.msg-row.self{align-self:flex-end;align-items:flex-end}
+.msg-row.other{align-self:flex-start;align-items:flex-start}
+.msg-row.guest{align-self:flex-start;align-items:flex-start}
+.msg-author{font-size:12px;color:var(--text-muted);display:inline-flex;align-items:center;gap:5px}
+.bubble{padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.55;word-break:break-word;transition:all .15s}
+.bubble.self{background:var(--msg-self-bg);border:1px solid var(--msg-self-border);color:var(--text-primary);border-bottom-right-radius:4px}
+.bubble.other{background:var(--msg-other-bg);border:1px solid var(--msg-other-border);color:var(--text-primary);border-bottom-left-radius:4px}
+.bubble.guest{background:var(--msg-guest-bg);border:1px solid var(--msg-guest-border);color:var(--text-primary);border-bottom-left-radius:4px}
+.bubble:hover .msg-delete{opacity:1}
+.msg-deleted{font-style:italic;color:var(--text-muted);background:var(--msg-other-bg);border:1px dashed var(--border-color);padding:8px 14px;border-radius:12px;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+/* ---- Chat Input ---- */
+.chat-input-bar{display:flex;align-items:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border-color);background:var(--bg-secondary)}
+.chat-input{flex:1;display:flex;align-items:center;gap:8px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:8px;padding:10px 14px;color:var(--text-primary);transition:all .15s}
+.chat-input:focus-within{border-color:var(--border-glow);box-shadow:0 0 0 2px var(--focus-ring)}
+.chat-input textarea{flex:1;background:transparent;border:none;outline:none;resize:none;color:var(--text-primary);font-family:'Sora',sans-serif;font-size:14px;line-height:1.4;max-height:120px}
+.chat-input textarea::placeholder{color:var(--text-muted)}
+.chat-input.disabled{opacity:.5;cursor:not-allowed}
+.chat-input.error{border-color:var(--accent-3);box-shadow:0 0 0 1px var(--accent-3)}
+.send-btn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;flex-shrink:0;border-radius:8px;border:none;background:var(--accent-1);color:#FFF;cursor:pointer;transition:all .2s}
+.send-btn:hover{box-shadow:0 0 20px var(--border-glow)}
+.send-btn:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.send-btn:disabled{opacity:.5;cursor:not-allowed}
+.input-hint{font-size:12px;color:var(--text-muted);margin-top:6px}
+.input-hint.error{color:var(--accent-3)}
+.input-hint.rate{color:var(--accent-2)}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:260px;color:var(--text-muted);text-align:center}
+.loading-state{display:flex;align-items:center;justify-content:center;gap:10px;min-height:260px;color:var(--text-secondary)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border-color);border-top-color:var(--accent-1);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-state{display:flex;flex-direction:column;align-items:center;gap:8px;min-height:260px;justify-content:center;color:var(--accent-3);text-align:center}
+/* ---- Drawer demo ---- */
+.drawer-demo{position:relative;min-height:420px;background:var(--bg-secondary);border-radius:16px;overflow:hidden;margin-bottom:16px}
+.drawer-overlay{position:absolute;inset:0;background:var(--overlay-bg);display:flex;justify-content:flex-end}
+.drawer-panel{width:420px;max-width:90vw;height:100%;background:var(--drawer-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-left:1px solid var(--border-glow);display:flex;flex-direction:column}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border-color)}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:transparent;border:1px solid transparent;color:var(--text-secondary);cursor:pointer;transition:all .15s}
+.icon-btn:hover{color:var(--accent-1);background:color-mix(in srgb,var(--accent-1) 8%,transparent)}
+.icon-btn:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+<div class="container">
+
+<div class="page-header">
+  <div>
+    <h1><span class="gradient">实时公共聊天室</span> UI 预览</h1>
+    <p class="subtitle">CodingHub · Cyberpunk Glassmorphism · 双主题</p>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题">
+    <svg class="icon" id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <span id="theme-label">切换到浅色</span>
+  </button>
+</div>
+<p>展示实时公共聊天室在<strong>暗色</strong>和<strong>浅色</strong>主题下的全部交互状态。双入口：<code>/chat</code> 全屏页 + 全站右下角悬浮抽屉 <code>ChatLauncher</code>。引用 <code>design-system.md</code> 与 <code>design-system/CodingHub/MASTER.md</code>。</p>
+
+<!-- 1. 悬浮入口按钮 -->
+<h2>1. 悬浮入口 ChatLauncher</h2>
+<p>全站右下角常驻，点击展开抽屉聊天室；有未读消息时右上角显示角标。</p>
+
+<h3>1.1 按钮状态 <span class="theme-badge theme-badge-dk">暗色</span></h3>
+<div class="state-row">
+  <span class="state-label">normal</span>
+  <button class="launcher-btn" aria-label="打开聊天室"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>
+  <span class="state-label">hover</span>
+  <button class="launcher-btn" style="border-color:var(--border-glow);box-shadow:var(--shadow-glow)" aria-label="打开聊天室"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>
+  <span class="state-label">focus</span>
+  <button class="launcher-btn" style="outline:2px solid #00FFFF;outline-offset:2px" aria-label="打开聊天室"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>
+  <span class="state-label">未读角标 (3)</span>
+  <button class="launcher-btn" aria-label="打开聊天室（3 条未读）"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span class="unread-badge">3</span></button>
+</div>
+
+<h3>1.2 按钮状态 <span class="theme-badge theme-badge-lt">浅色</span></h3>
+<div class="state-row">
+  <span class="state-label">normal</span>
+  <button class="launcher-btn" aria-label="打开聊天室"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>
+  <span class="state-label">hover</span>
+  <button class="launcher-btn" style="border-color:var(--border-glow);box-shadow:var(--shadow-glow)" aria-label="打开聊天室"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>
+  <span class="state-label">focus</span>
+  <button class="launcher-btn" style="outline:2px solid #7c3aed;outline-offset:2px" aria-label="打开聊天室"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>
+  <span class="state-label">未读角标 (3)</span>
+  <button class="launcher-btn" aria-label="打开聊天室（3 条未读）"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span class="unread-badge">3</span></button>
+</div>
+
+<!-- 2. 抽屉聊天室 Dialog -->
+<h2>2. 抽屉聊天室 (ChatLauncher 展开)</h2>
+<p><code>role="dialog"</code> + <code>aria-modal="true"</code> + <code>aria-labelledby</code>，右侧滑入。消息列表 <code>aria-live="polite"</code>。</p>
+
+<h3>2.1 双主题展示 <span class="theme-badge theme-badge-dk">暗色</span> | <span class="theme-badge theme-badge-lt">浅色</span></h3>
+<div class="drawer-demo">
+  <div class="drawer-overlay">
+    <div class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+      <div class="drawer-head">
+        <h3 id="drawer-title" style="margin:0;font-size:16px;font-weight:600;color:var(--text-primary)">公共聊天室</h3>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span class="online-count"><span class="online-dot" aria-hidden="true"></span><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:14px;height:14px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>128</span>
+          <button class="icon-btn" aria-label="关闭聊天室"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+      </div>
+      <div class="msg-list" aria-live="polite">
+        <div class="msg-row other"><span class="msg-author"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:13px;height:13px"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>Alice</span><div class="bubble other">有人用过 pgvector 做语义检索吗？效果咋样？</div></div>
+        <div class="msg-row self"><span class="msg-author">我</span><div class="bubble self">用过，配合 HNSW 索引百万级向量延迟能压到 20ms 以内。</div></div>
+        <div class="msg-row guest"><span class="msg-author"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:13px;height:13px"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>游客</span><div class="bubble guest">请问后端是用 Spring Boot 还是 Node？</div></div>
+      </div>
+      <div class="chat-input-bar">
+        <div class="chat-input"><textarea rows="1" placeholder="说点什么…（Enter 发送，Shift+Enter 换行）" aria-label="输入消息"></textarea></div>
+        <button class="send-btn" aria-label="发送"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. 消息气泡状态 -->
+<h2>3. 消息气泡 MessageBubble 状态</h2>
+<p>四种语义：自己 / 他人 / 游客 / 管理员删除。管理员 hover 自己消息时显示删除按钮。</p>
+
+<h3>3.1 气泡样式 <span class="theme-badge theme-badge-dk">暗色</span> | <span class="theme-badge theme-badge-lt">浅色</span></h3>
+<div class="glass-card">
+  <div class="msg-list" style="padding:0;background:transparent;border:none">
+    <div class="msg-row other"><span class="msg-author"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:13px;height:13px"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>Bob</span><div class="bubble other">这是一条他人消息气泡 (other)。</div></div>
+    <div class="msg-row self"><span class="msg-author">我</span><div class="bubble self">这是一条自己的消息气泡 (self)，靠右对齐。</div></div>
+    <div class="msg-row guest"><span class="msg-author"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:13px;height:13px"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>游客</span><div class="bubble guest">这是游客消息气泡 (guest)，粉色描边区分身份。</div></div>
+    <div class="msg-row"><span class="msg-deleted"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:14px;height:14px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>该消息已被管理员删除</span></div>
+    <div class="msg-row self" style="position:relative"><span class="msg-author">我</span><div class="bubble self" style="display:flex;align-items:center;gap:8px">管理员 hover 我方消息显示删除按钮<button class="icon-btn" style="width:28px;height:28px;color:var(--danger)" aria-label="删除消息"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></div></div>
+  </div>
+</div>
+
+<!-- 4. 输入框状态 -->
+<h2>4. 输入框 ChatInput 状态</h2>
+<p>Enter 发送、Shift+Enter 换行。限流时禁用并提示倒计时；超长 (>&gt;1000) 显示错误。</p>
+
+<h3>4.1 输入框状态 <span class="theme-badge theme-badge-dk">暗色</span></h3>
+<div class="state-row" style="flex-direction:column;align-items:stretch;gap:14px">
+  <div><span class="state-label" style="display:block;margin-bottom:6px">normal / focus</span>
+    <div class="chat-input-bar" style="border-top:none;background:var(--bg-secondary)">
+      <div class="chat-input"><textarea rows="1" placeholder="说点什么…" aria-label="输入消息">正在输入一条消息…</textarea></div>
+      <button class="send-btn" aria-label="发送"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div></div>
+  <div><span class="state-label" style="display:block;margin-bottom:6px">disabled (限流中)</span>
+    <div class="chat-input-bar" style="border-top:none;background:var(--bg-secondary)">
+      <div class="chat-input disabled"><textarea rows="1" placeholder="发送过于频繁，请稍候…" disabled aria-label="输入消息（已限流）"></textarea></div>
+      <button class="send-btn" disabled aria-label="发送（已限流）"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
+    <span class="input-hint rate"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:13px;height:13px;vertical-align:-2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 限流中，3 秒后可再发送 (429)</span></div>
+  <div><span class="state-label" style="display:block;margin-bottom:6px">error (超长)</span>
+    <div class="chat-input-bar" style="border-top:none;background:var(--bg-secondary)">
+      <div class="chat-input error" role="alert"><textarea rows="1" placeholder="说点什么…" aria-label="输入消息（内容超长）" aria-invalid="true">这条消息超过了 1000 字上限……</textarea></div>
+      <button class="send-btn" aria-label="发送"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
+    <span class="input-hint error" role="alert">消息长度不能超过 1000 字符（当前 1234）</span></div>
+</div>
+
+<h3>4.2 输入框状态 <span class="theme-badge theme-badge-lt">浅色</span></h3>
+<div class="state-row" style="flex-direction:column;align-items:stretch;gap:14px">
+  <div><span class="state-label" style="display:block;margin-bottom:6px">normal / focus</span>
+    <div class="chat-input-bar" style="border-top:none;background:var(--bg-secondary)">
+      <div class="chat-input"><textarea rows="1" placeholder="说点什么…" aria-label="输入消息">正在输入一条消息…</textarea></div>
+      <button class="send-btn" aria-label="发送"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div></div>
+  <div><span class="state-label" style="display:block;margin-bottom:6px">disabled (限流中)</span>
+    <div class="chat-input-bar" style="border-top:none;background:var(--bg-secondary)">
+      <div class="chat-input disabled"><textarea rows="1" placeholder="发送过于频繁，请稍候…" disabled aria-label="输入消息（已限流）"></textarea></div>
+      <button class="send-btn" disabled aria-label="发送（已限流）"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
+    <span class="input-hint rate"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:13px;height:13px;vertical-align:-2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 限流中，3 秒后可再发送 (429)</span></div>
+  <div><span class="state-label" style="display:block;margin-bottom:6px">error (超长)</span>
+    <div class="chat-input-bar" style="border-top:none;background:var(--bg-secondary)">
+      <div class="chat-input error" role="alert"><textarea rows="1" placeholder="说点什么…" aria-label="输入消息（内容超长）" aria-invalid="true">这条消息超过了 1000 字上限……</textarea></div>
+      <button class="send-btn" aria-label="发送"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
+    <span class="input-hint error" role="alert">消息长度不能超过 1000 字符（当前 1234）</span></div>
+</div>
+
+<!-- 5. 全屏页状态：加载/空/错误/重连 -->
+<h2>5. /chat 全屏页 · 状态</h2>
+<p>连接建立前显示加载；无历史消息显示空状态；断线显示重连；加载失败显示错误。</p>
+
+<h3>5.1 加载 / 空 / 错误 / 重连 <span class="theme-badge theme-badge-dk">暗色</span> | <span class="theme-badge theme-badge-lt">浅色</span></h3>
+<div class="chat-demo" style="display:grid;gap:16px;grid-template-columns:repeat(2,1fr)">
+  <div class="chat-panel"><div class="loading-state"><span class="spinner" aria-hidden="true"></span>正在连接聊天室…</div></div>
+  <div class="chat-panel"><div class="empty-state">
+    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="width:40px;height:40px;opacity:.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    <p>还没有人发言，来抢沙发吧！</p>
+  </div></div>
+  <div class="chat-panel">
+    <div class="chat-header"><span class="chat-title">公共聊天室</span><span class="conn-pill conn-off"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:13px;height:13px"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>连接已断开，重连中…</span></div>
+    <div class="loading-state"><span class="spinner" aria-hidden="true"></span>正在重连到服务器</div>
+  </div>
+  <div class="chat-panel"><div class="error-state">
+    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:36px;height:36px"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    <p>聊天室加载失败 (500)</p>
+    <button class="theme-toggle" style="border-color:var(--border-glow)" onclick="">重试</button>
+  </div></div>
+</div>
+
+<!-- 6. 在线人数与连接状态 -->
+<h2>6. 在线人数 / 连接状态</h2>
+<p>顶部显示实时在线人数（<code>Users</code> 图标 + Space Mono 数字）与连接状态药丸。</p>
+
+<h3>6.1 状态行 <span class="theme-badge theme-badge-dk">暗色</span> | <span class="theme-badge theme-badge-lt">浅色</span></h3>
+<div class="state-row">
+  <span class="online-count"><span class="online-dot" aria-hidden="true"></span><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:14px;height:14px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>128 在线</span>
+  <span class="conn-pill conn-on"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:13px;height:13px"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>已连接</span>
+  <span class="conn-pill conn-off"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:13px;height:13px"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>重连中</span>
+</div>
+
+<!-- 7. 响应式预览 -->
+<h2>7. 响应式预览</h2>
+<p>三断点布局：<code>&lt;640px</code> 抽屉全宽、输入框固定底部；<code>≥640px</code> 抽屉 380px；<code>≥1024px</code> 抽屉 420px、<code>/chat</code> 可选两栏。</p>
+
+<div class="responsive-grid">
+  <div><span class="viewport-tag">Desktop ≥ 1024</span>
+    <div class="chat-panel"><div class="chat-header"><span class="chat-title">公共聊天室</span><span class="online-count"><span class="online-dot" aria-hidden="true"></span>128</span></div><div class="msg-list" style="max-height:200px"><div class="msg-row other"><div class="bubble other">桌面端两栏布局，右侧可在未来放在线用户侧栏。</div></div><div class="msg-row self"><div class="bubble self">抽屉宽 420px，输入框固定底部。</div></div></div></div>
+  </div>
+  <div><span class="viewport-tag">Tablet 768–1023</span>
+    <div class="chat-panel"><div class="chat-header"><span class="chat-title">公共聊天室</span><span class="online-count"><span class="online-dot" aria-hidden="true"></span>86</span></div><div class="msg-list" style="max-height:200px"><div class="msg-row other"><div class="bubble other">平板抽屉宽 380px，右侧滑入。</div></div><div class="msg-row self"><div class="bubble self">消息居中，最大宽 860px。</div></div></div></div>
+  </div>
+  <div><span class="viewport-tag">Mobile &lt; 768</span>
+    <div class="chat-panel"><div class="chat-header"><span class="chat-title">聊天室</span><span class="online-count"><span class="online-dot" aria-hidden="true"></span>42</span></div><div class="msg-list" style="max-height:200px"><div class="msg-row other"><div class="bubble other">移动端抽屉全宽 100vw。</div></div><div class="msg-row self"><div class="bubble self">输入框吸底固定。</div></div></div></div>
+  </div>
+</div>
+
+<!-- 8. 可访问性检查清单 -->
+<h2>8. 可访问性 (a11y) 检查</h2>
+<p>依据 <code>design-system.md</code> 第 6 节与 WCAG 2.1 AA。</p>
+<ul class="checklist">
+  <li><strong>图标按钮</strong> — 悬浮入口 / 发送 / 关闭均为纯图标按钮，带 <code>aria-label</code></li>
+  <li><strong>对话框</strong> — 抽屉 <code>role="dialog"</code> + <code>aria-modal="true"</code> + <code>aria-labelledby</code></li>
+  <li><strong>焦点环</strong> — 暗色 <code>#00FFFF</code> / 亮色 <code>#7c3aed</code>，2px offset，<code>:focus-visible</code></li>
+  <li><strong>实时播报</strong> — 消息列表 <code>aria-live="polite"</code>，新消息被屏幕阅读器朗读</li>
+  <li><strong>限流 / 超长</strong> — 输入框错误态使用 <code>role="alert"</code> + <code>aria-invalid</code></li>
+  <li><strong>键盘可达</strong> — Enter 发送、Shift+Enter 换行、Esc 关闭抽屉、Tab 循环</li>
+  <li><strong>装饰图标</strong> — 在线点 / 用户头像等非交互图标 <code>aria-hidden="true"</code></li>
+  <li><strong>对比度</strong> — 气泡文字 vs 背景满足 WCAG AA</li>
+  <li><strong>prefers-reduced-motion</strong> — 已阻断抽屉滑入与消息淡入动画</li>
+</ul>
+
+<script>
+function toggleTheme() {
+  var h = document.documentElement;
+  var d = h.getAttribute('data-theme') === 'dark';
+  h.setAttribute('data-theme', d ? 'light' : 'dark');
+  document.getElementById('theme-label').textContent = d ? '切换到暗色' : '切换到浅色';
+}
+</script>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,212 @@
+name: ui-design-to-browser-test
+version: 5
+description: 后端原子化TDD + 前端直接实现 + 条件式UI/UX设计系统 + 浏览器预览验证
+
+artifacts:
+  - id: proposal
+    generates: proposal.md
+    description: 变更提案——为什么做、期望什么行为
+    template: proposal.md
+    instruction: |
+      创建一份变更提案，说明为什么要做这个改动。
+      必须用WHEN/THEN格式列出每一个可测试行为：
+      - WHEN <函数名>(<输入>) 被调用 THEN 结果为 <期望值>
+      只描述"期望发生什么"，不要描述实现细节。
+    requires: []
+
+  - id: specs
+    generates: specs/**/*.md
+    description: 行为规格——用场景描述期望行为
+    template: spec.md
+    instruction: |
+      用 GIVEN/WHEN/THEN 格式编写行为规格：
+      - 每个场景必须可独立测试
+      - 覆盖：正常路径、边界情况、错误处理
+      - 只描述期望行为，不描述实现方式
+    requires:
+      - proposal
+
+  - id: design-system
+    generates: design-system.md
+    description: |
+      本次变更的 UI 约束摘要——引用全局设计系统，列出本次涉及的组件/样式/交互规范
+      【可选 artifact】仅当改动涉及前端 UI 时生成；纯后端/逻辑变更可跳过
+      【双主题固定配置】项目始终使用暗色 (dark) + 亮色 (light) 双主题，
+      token 映射表必须并列两列（暗色 | 亮色 | CSS 变量），
+      交互状态按组件分子节，每个组件下按暗色/亮色分两个子节
+    template: design-system.md
+    instruction: |
+      【可选 artifact】仅当改动涉及前端界面修改时执行。
+
+      ## 第一步：读取全局设计系统
+      读取项目全局设计系统文件 `design-system/CodingHub/MASTER.md`，
+      提取与本次变更相关的组件、样式、配色、字体、交互规范。
+
+      ## 第二步：按需补充 ui-ux-pro-max 检索
+      如全局设计系统未覆盖本次需要的 UI 模式，调用 ui-ux-pro-max 补充：
+      ```bash
+      python3 ~/.agents/skills/ui-ux-pro-max/scripts/search.py "<产品类型> <行业> <风格关键词>" --design-system -p "<项目名>" -f markdown
+      ```
+
+      ## 第三步：生成本次 UI 约束摘要
+      基于 MASTER.md + 补充检索结果，生成本次变更的 UI 约束摘要（design-system.md）。
+
+      必须包含的章节：
+      1. **全局样式引用** — 字体、圆角、阴影（阴影表需暗色/亮色两列）
+      2. **双主题 Tokens 映射** — 暗色主题 | 亮色主题 | CSS 变量 三列表，涵盖页面背景、面板、卡片、毛玻璃、主色、辅助色、文字色、边框色等全部角色
+      3. **涉及组件清单** — 组件/页面、用途、状态覆盖
+      4. **交互状态（双主题）** — 每个组件按暗色/亮色分别列出所有状态的完整样式（normal/hover/focus/disabled/loading/active）
+      5. **响应式策略** — 断点与布局行为
+      6. **可访问性要求** — checkbox 清单（暗色/亮色焦点环分别列出）
+      7. **图标清单** — Lucide 图标及 aria 属性
+      8. **Antipatterns 检查** — 合规/不合规项
+
+      每个组件的暗色/亮色交互状态必须分别列出完整样式，确保每个主题可独立验证。
+
+      如不需要生成 UI，此 artifact 可跳过。
+    requires:
+      - proposal
+
+  - id: design
+    generates: design.md
+    description: 技术设计——怎么实现、后端测试策略
+    template: design.md
+    instruction: |
+      编写技术设计方案，说明如何实现。
+      必须包含：
+      - 要创建的文件列表（源码文件，给出完整路径）
+      - 【仅后端】测试文件清单：测试文件与源码文件的对应关系、测试策略（单元测试/集成测试）
+      - 【仅后端】测试运行命令
+      - 前端文件清单：Vue 组件/页面/服务文件路径（前端不做 TDD，无需测试文件）
+
+      【如有 UI 改动，增加以下内容】
+      - UI 组件清单：优先基于本次变更的 design-system.md；如未生成，则引用全局 `design-system/CodingHub/MASTER.md`
+      - 页面布局说明：说明主要页面结构、交互状态和响应式策略
+      - 可访问性要求：键盘焦点、ARIA、对比度、错误提示等验收点
+    requires:
+      - proposal
+      - specs
+
+  - id: impact-analysis
+    generates: impact-analysis.md
+    description: |
+      代码影响范围分析——基于 design.md 中的文件/类清单执行 codegraph 扫描
+      【条件必选】仅当 design 涉及修改现有代码时执行；纯新增模块/页面可跳过
+    template: impact-analysis.md
+    instruction: |
+      【条件必选 artifact】执行规则：
+      1. 读取 design.md 中的文件列表、类列表、源码文件与测试文件对应关系
+      2. 判定改动类型：
+         - design.md 中所有源码文件均为新增 → 跳过此 artifact
+         - design.md 中存在任意现有源码文件 → 必须执行
+      3. 若需执行，使用 Task(code-explorer) 子代理扫描代码库：
+         - 以 design.md 中列出的现有类/函数/组件/API 作为 codegraph 入口
+         - 追踪直接调用方与传递调用方（深度 2-3 层）
+         - 列出依赖的上游服务（repository、config、util）
+         - 找出受影响的测试文件
+         - 检查 design.md 的源码文件与测试文件对应关系是否完整
+         - 评估改动风险等级（L0 纯新增 / L1 修改公共 API / L2 修改 schema 或业务规则）
+         - 生成回归测试建议清单
+      4. 校验后端层级依赖仍合法：
+         ```bash
+         bash scripts/lint-arch.sh
+         ```
+         若 FAIL 必须修复 design 后再继续
+      5. 若发现 design.md 漏掉受影响文件/测试，必须在报告中列出“设计修正建议”
+      6. 报告保存到 impact-analysis.md
+    requires:
+      - design
+
+  - id: ui-preview
+    generates: ui-preview.html
+    description: |
+      HTML 界面预览——基于 design-system 与 ui-ux-pro-max 设计规范生成可交互的 UI 原型
+      【仅当改动涉及前端 UI 时生成】
+      【双主题固定配置】在同一 HTML 文件中使用 CSS 变量 + [data-theme] 属性实现暗色/亮色双主题切换预览，
+    template: ui-preview.md
+    instruction: |
+      【可选 artifact】仅当改动涉及前端界面修改时执行。
+
+      使用 ui-ux-pro-max skill 获取设计规范与样式决策，然后生成 HTML 预览页面。
+      目的：让用户直观预览最终效果，作为视觉验收标准。
+
+      ## 第一步：确认设计依据
+      优先读取本次变更生成的 design-system.md；如未生成，则读取全局 `design-system/CodingHub/MASTER.md`。
+      如设计依据仍不足，可调用 ui-ux-pro-max 检索样式、配色、字体、UX 规则：
+      ```bash
+      python3 ~/.agents/skills/ui-ux-pro-max/scripts/search.py "<产品类型> <行业> <风格关键词>" --design-system -p "<项目名>" -f markdown
+      ```
+
+      ## 第二步：生成 HTML 预览
+      基于 design.md 和 design-system.md 生成代码。参考 `openspec/changes/add-post-delete/ui-preview.html` 的结构。
+
+      双主题 CSS 变量方案：
+      - 在 `:root` 中定义暗色主题（默认）的全部 CSS 变量
+      - 使用 `[data-theme="light"]` 选择器覆盖亮色主题的变量值
+      - 页面 `<html>` 初始设置 `data-theme="dark"`
+      - 提供主题切换按钮（月亮/太阳图标），通过 JS 切换 `data-theme` 属性
+      - 暗色/亮色分别定义背景渐变效果和网格 overlay
+      - 使用 `var(--xxx)` 引用变量实现组件样式自动跟随主题
+
+      内容结构要求：
+      1. 页面头部：渐变标题 + 副标题 + 主题切换按钮
+      2. 每个组件的状态行按暗色/亮色分组，用 `<h3>` + 主题徽章标注（如 `theme-badge-dk` / `theme-badge-lt`）
+      3. 对话框等复合组件使用 `.dialog-demo > .dialog-overlay > .dialog-panel` 结构
+      4. 响应式网格使用 CSS Grid，三断点自适应
+
+      生成要求：
+      1. 必须生成可独立运行的 HTML 文件（内联 CSS + JS，无外部依赖）
+      2. 包含页面主要状态的预览：正常态、悬停态、聚焦态、加载态、空状态、错误态
+      3. 覆盖桌面/平板/移动端响应式布局
+      4. 所有图标使用内联 SVG（Lucide），禁止 emoji
+      5. 包含基础可访问性标记（语义标签、aria-label、focus-visible、aria-busy）
+      6. 文件保存到 ui-preview.html
+      7. 生成后使用 preview_url 工具打开预览
+
+      如不需要生成 UI，此 artifact 可跳过。
+    requires:
+      - design
+
+  - id: tasks
+    generates: tasks.md
+    description: 后端原子化TDD任务列表 + 前端直接实现任务 + 浏览器测试任务
+    template: tasks.md
+    instruction: |
+      关键要求：将工作拆分为后端 TDD 任务 + 前端直接实现任务 + 浏览器测试任务。
+      核心原则：后端走 TDD（RED/GREEN/REFACTOR），前端直接实现不做 TDD。
+
+      【前置参考】
+      - 如 design.md 涉及修改现有源码，则必须先生成 impact-analysis.md，并参考其调用图、受影响测试、回归测试建议和设计修正建议。
+      - 如 impact-analysis.md 已跳过，必须在 tasks.md 中记录跳过原因（例如：全部源码文件为新增），再按 design.md 拆分。
+
+      ## A. 后端 TDD 任务
+      仅针对后端 Java/Spring Boot 代码（controller、service、repository、model、dto、util 等）。
+      每个任务必须是且仅是一个 TDD 阶段（RED / GREEN / REFACTOR）。
+      必须使用checkbox格式书写每个任务：
+      ### Feature: [功能名称]
+      - [ ] RED: 编写失败测试——[测试什么行为]
+      - [ ] GREEN: 最小实现——[实现描述，引用对应的RED任务]
+      - [ ] REFACTOR: 重构清理——[清理描述]（可选）
+      规则：
+      1. 禁止将RED和GREEN合并到一个任务
+      2. 每个GREEN任务必须引用对应的RED测试
+      3. 每个任务必须使用"- [ ]" checkbox格式
+      4. 任务严格交替：RED→GREEN→（可选REFACTOR）
+      5. 每个任务应在2-5分钟内可完成
+
+      ## B. 前端实现任务（不做 TDD）【如有 UI 改动】
+      前端 Vue/TypeScript 代码不做 TDD，直接实现。
+      基于 design.md、设计系统和 ui-preview.html（如已生成）创建 UI 任务：
+      ### UI: [组件/页面名称]
+      - [ ] 实现 [组件名]——基于设计系统规范，参考 ui-preview.html（如已生成），使用 CSS 变量支持双主题
+      - [ ] 验证 [组件名]——视觉检查是否符合设计规范、交互状态、响应式和可访问性要求
+      - [ ] 双主题验证——验证暗色/亮色主题下组件显示正确，焦点环、阴影、背景效果均随主题切换
+      规则：
+      1. UI 任务在后端 TDD 任务完成后执行
+      2. 每个组件独立一个任务块
+      3. 如已生成 design-system.md / ui-preview.html，必须引用它们作为验收参考；否则引用全局设计系统和 design.md
+      4. 双主题固定规则：每个组件必须使用 CSS 变量实现暗色/亮色适配，验证时需切换两种主题分别检查
+      5. 前端不编写单元测试，通过浏览器测试验证功能正确性
+    requires:
+      - specs
+      - design

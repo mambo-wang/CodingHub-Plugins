@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>内容审核权限 UI 预览 | CodingHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg-primary:#09090b;--bg-secondary:#0f0f12;--bg-card:rgba(15,15,20,0.7);--bg-glass:rgba(255,255,255,0.03);--accent-1:#8b5cf6;--accent-2:#06b6d4;--accent-3:#ec4899;--text-primary:#fafafa;--text-secondary:#a1a1aa;--text-muted:#52525b;--border-color:rgba(255,255,255,0.08);--border-glow:rgba(139,92,246,0.3);--shadow-md:0 8px 24px rgba(0,0,0,0.4);--color-destructive:#EF4444;--focus-ring:#00FFFF;--overlay-bg:rgba(0,0,0,0.6);--modal-bg:rgba(15,15,20,0.95);--modal-border:rgba(255,255,255,0.12)}
+[data-theme="light"]{--bg-primary:#f8fafc;--bg-secondary:#f1f5f9;--bg-card:rgba(255,255,255,0.9);--bg-glass:rgba(255,255,255,0.8);--accent-1:#7c3aed;--accent-2:#0891b2;--accent-3:#db2777;--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#94a3b8;--border-color:rgba(0,0,0,0.08);--border-glow:rgba(124,58,237,0.3);--shadow-md:0 8px 24px rgba(0,0,0,0.12);--focus-ring:#7c3aed;--overlay-bg:rgba(0,0,0,0.4);--modal-bg:rgba(255,255,255,0.95);--modal-border:rgba(0,0,0,0.1)}
+body{font-family:'Sora',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;transition:background .4s,color .4s}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0}
+[data-theme="dark"] body::before{background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(139,92,246,0.15),transparent),radial-gradient(ellipse 60% 40% at 80% 50%,rgba(6,182,212,0.08),transparent)}
+[data-theme="light"] body::before{background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(124,58,237,0.08),transparent)}
+.grid-overlay{position:fixed;inset:0;pointer-events:none;z-index:0}
+[data-theme="dark"] .grid-overlay{background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:60px 60px}
+.container{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:32px 20px 80px}
+h1{font-size:28px;font-weight:700}.gradient{background:linear-gradient(135deg,var(--accent-1),var(--accent-2),var(--accent-3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+h2{font-size:20px;font-weight:600;margin:40px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border-color)}
+h3{font-size:15px;font-weight:500;margin:20px 0 12px;color:var(--text-secondary)}
+p{color:var(--text-secondary);line-height:1.6;font-size:14px}.subtitle{color:var(--text-muted);font-size:14px}
+.page-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:32px}
+.theme-toggle{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-glass);cursor:pointer;font-size:14px;font-weight:500;color:var(--text-primary);transition:all .2s;backdrop-filter:blur(10px)}
+.theme-toggle:hover{border-color:var(--accent-1);box-shadow:0 0 20px var(--border-glow)}
+.theme-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;font-family:'Space Mono',monospace;margin-left:8px}
+.theme-badge-dk{background:#8b5cf6;color:#FFF}
+.glass-card{background:var(--bg-glass);backdrop-filter:blur(20px);border:1px solid var(--border-color);border-radius:16px;padding:24px;margin-bottom:16px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#FFF;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;font-family:'Space Mono',monospace}
+.b-user{background:var(--bg-glass);color:var(--text-secondary);border:1px solid var(--border-color)}
+.b-admin{background:rgba(6,182,212,0.15);color:var(--accent-2);border:1px solid rgba(6,182,212,0.3)}
+.b-owner{background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3)}
+.content-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:16px}
+@media(max-width:639px){.content-grid{grid-template-columns:1fr}}
+.content-card{position:relative;background:var(--bg-glass);backdrop-filter:blur(20px);border:1px solid var(--border-color);border-radius:16px;padding:20px;cursor:pointer;transition:all .3s cubic-bezier(0.4,0,0.2,1)}
+.content-card:hover{border-color:var(--border-glow);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.card-cat{display:inline-block;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:500;color:var(--accent-1);background:color-mix(in srgb,var(--accent-1) 10%,transparent);margin-bottom:12px}
+.card-title{font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:8px}
+.card-meta{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary)}
+.card-actions{position:absolute;top:12px;right:12px;display:flex;gap:6px;opacity:.35;transition:opacity .25s ease}
+.content-card:hover .card-actions{opacity:1}
+.btn-icon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;padding:6px;border-radius:8px;border:1.5px solid var(--border-color);background:transparent;color:var(--text-muted);cursor:pointer;transition:all .2s ease}
+.btn-icon:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.btn-edit:hover{color:var(--accent-1);border-color:var(--accent-1);background:color-mix(in srgb,var(--accent-1) 10%,transparent);box-shadow:0 0 12px color-mix(in srgb,var(--accent-1) 20%,transparent)}
+.btn-del:hover{color:var(--color-destructive);border-color:color-mix(in srgb,var(--color-destructive) 30%,transparent);background:color-mix(in srgb,var(--color-destructive) 10%,transparent)}
+.detail-actions{display:flex;gap:12px;flex-wrap:wrap;padding:16px 0}
+.action-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:1.5px solid var(--border-color);border-radius:24px;background:var(--bg-glass);color:var(--text-secondary);font-size:15px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Sora',sans-serif}
+.action-btn:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.action-btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-edit-d:hover:not(:disabled){border-color:var(--accent-1);color:var(--accent-1);background:color-mix(in srgb,var(--accent-1) 10%,transparent)}
+.btn-del-d{background:var(--color-destructive);color:#FFF;border-color:transparent}
+.btn-del-d:hover:not(:disabled){background:#DC2626;box-shadow:0 0 20px color-mix(in srgb,var(--color-destructive) 30%,transparent)}
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:8px;padding-left:4px}
+.form-input{width:100%;padding:12px 16px;background:var(--bg-glass);border:1px solid var(--border-color);border-radius:8px;color:var(--text-primary);font-size:14px;font-family:'Sora',sans-serif;outline:none;transition:all .25s}
+.form-input:focus{border-color:var(--accent-1);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent-1) 20%,transparent)}
+.form-textarea{min-height:100px;resize:vertical;line-height:1.6}
+.btn-submit{display:inline-flex;align-items:center;gap:8px;padding:12px 32px;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));color:#FFF;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:all .25s;font-family:'Sora',sans-serif}
+.btn-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px color-mix(in srgb,var(--accent-1) 35%,transparent)}
+.dd{position:relative;min-height:200px;background:var(--bg-secondary);border-radius:16px;overflow:hidden;margin-bottom:16px}
+.do{position:absolute;inset:0;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;padding:24px}
+.dp{background:var(--modal-bg);backdrop-filter:blur(20px);border:1px solid var(--modal-border);border-radius:16px;padding:24px;width:380px;max-width:90vw;box-shadow:var(--shadow-md)}
+.dp h3{margin:0 0 12px;font-size:18px;font-weight:600;color:var(--text-primary)}
+.dp .ddesc{margin:0 0 24px;font-size:14px;color:var(--text-secondary);line-height:1.5}
+.da{display:flex;justify-content:flex-end;gap:12px}
+.bc{padding:10px 20px;background:transparent;color:var(--text-secondary);border:1.5px solid var(--border-color);border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Sora',sans-serif}
+.bc:hover{border-color:var(--accent-1);color:var(--accent-1)}
+.bc:disabled{opacity:.5;cursor:not-allowed}
+.bd{padding:10px 20px;background:var(--color-destructive);color:#FFF;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Sora',sans-serif}
+.bd:hover:not(:disabled){background:#DC2626;box-shadow:0 0 20px rgba(239,68,68,0.3)}
+.bd:disabled{opacity:.6;cursor:not-allowed}
+.perm-table{width:100%;border-collapse:collapse;font-size:14px;border-radius:12px;overflow:hidden;border:1px solid var(--border-color)}
+.perm-table th{text-align:left;padding:12px 16px;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border-color);background:var(--bg-secondary)}
+.perm-table td{padding:12px 16px;border-bottom:1px solid var(--border-color);color:var(--text-secondary)}
+.perm-table tr:last-child td{border-bottom:none}
+.perm-yes{color:#10b981;font-weight:600}.perm-no{color:var(--text-muted)}
+.checklist{font-size:14px;line-height:2.2;color:var(--text-secondary);padding-left:24px}.checklist li::marker{color:#10b981}
+.note{display:flex;align-items:flex-start;gap:8px;padding:12px 16px;background:color-mix(in srgb,var(--accent-2) 8%,transparent);border:1px solid color-mix(in srgb,var(--accent-2) 20%,transparent);border-radius:8px;color:var(--text-secondary);font-size:13px;margin-bottom:16px;line-height:1.5}
+code{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent-2);background:rgba(6,182,212,0.08);padding:2px 6px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+<div class="container">
+<div class="page-header">
+<div><h1><span class="gradient">内容审核权限</span> UI 预览</h1><p class="subtitle">CodingHub · 工具/帖子/微课 · 双主题</p></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题"><span id="theme-label">切换到浅色</span></button>
+</div>
+
+<h2>权限矩阵</h2>
+<div class="glass-card">
+<table class="perm-table">
+<thead><tr><th>角色</th><th>删除</th><th>编辑</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><span class="badge b-owner">创建者</span></td><td class="perm-yes">✅ 仅自己</td><td class="perm-yes">✅ 仅自己</td><td>完全控制自己的内容</td></tr>
+<tr><td><span class="badge b-admin">ADMIN</span></td><td class="perm-yes">✅ 任意</td><td class="perm-yes">✅ 任意</td><td>内容治理</td></tr>
+<tr><td><span class="badge b-admin">SUPER_ADMIN</span></td><td class="perm-yes">✅ 任意</td><td class="perm-yes">✅ 任意</td><td>同管理员</td></tr>
+<tr><td><span class="badge b-user">USER</span></td><td class="perm-no">❌ 仅自己</td><td class="perm-no">❌ 仅自己</td><td>无法操作他人内容</td></tr>
+<tr><td><span class="badge b-user">未登录</span></td><td class="perm-no">❌</td><td class="perm-no">❌</td><td>看不到按钮</td></tr>
+</tbody>
+</table>
+<div class="note" style="margin-top:16px"><span>权限对称：<code>canModify = isOwner || isAdmin</code></span></div>
+</div>
+
+<h2>1. 列表页卡片 — hover 操作按钮 <span class="theme-badge theme-badge-dk">暗色</span></h2>
+<p class="subtitle">按钮默认半透明(opacity 0.35)，卡片 hover 高亮(opacity 1)，按钮 hover 变色。无权限不显示。</p>
+<h3>1.1 有权限（创建者/管理员）</h3>
+<div class="content-grid">
+<div class="content-card">
+<div class="card-actions">
+<button class="btn-icon btn-edit" aria-label="编辑"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+<button class="btn-icon btn-del" aria-label="删除"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+</div>
+<span class="card-cat">工具</span>
+<div class="card-title">MCP Server 开发包</div>
+<div class="card-meta"><span class="badge b-owner">你的</span> · 2天前</div>
+</div>
+<div class="content-card">
+<div class="card-actions">
+<button class="btn-icon btn-edit" aria-label="编辑"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+<button class="btn-icon btn-del" aria-label="删除"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+</div>
+<span class="card-cat">帖子</span>
+<div class="card-title">Spring Boot 3.2 讨论</div>
+<div class="card-meta"><span class="badge b-admin">管理员视角</span> · 5小时前</div>
+</div>
+<div class="content-card">
+<div class="card-actions">
+<button class="btn-icon btn-edit" aria-label="编辑"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+<button class="btn-icon btn-del" aria-label="删除"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+</div>
+<span class="card-cat">微课</span>
+<div class="card-title">Vue 3 Composition API</div>
+<div class="card-meta"><span class="badge b-owner">你的</span> · 1周前</div>
+</div>
+</div>
+<div class="note"><span>将鼠标移到卡片上 → 按钮从半透明变完全可见。按钮 hover：编辑变紫、删除变红。</span></div>
+
+<h3>1.2 无权限（普通用户看他人内容）</h3>
+<div class="content-grid">
+<div class="content-card">
+<span class="card-cat">工具</span>
+<div class="card-title">他人的工具（无按钮）</div>
+<div class="card-meta"><span class="badge b-user">他人</span> · 3天前</div>
+</div>
+</div>
+
+<h2>2. 详情页操作按钮 <span class="theme-badge theme-badge-dk">暗色</span></h2>
+<h3>2.1 有权限</h3>
+<div class="glass-card">
+<div style="margin-bottom:8px"><span class="card-cat">工具</span></div>
+<h3 style="font-size:22px;font-weight:700;color:var(--text-primary);margin-bottom:8px">MCP Server 开发包</h3>
+<p style="font-size:14px;color:var(--text-secondary)">作者：kirito · 2天前 · 1.2k 浏览</p>
+<div class="detail-actions">
+<button class="action-btn btn-edit-d"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 编辑</button>
+<button class="action-btn btn-del-d"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> 删除</button>
+</div>
+</div>
+<h3>2.2 删除加载态</h3>
+<div class="glass-card">
+<div class="detail-actions">
+<button class="action-btn btn-edit-d" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 编辑</button>
+<button class="action-btn btn-del-d" disabled><span class="spinner"></span> 删除中...</button>
+</div>
+</div>
+
+<h2>3. 删除确认对话框 <span class="theme-badge theme-badge-dk">暗色</span></h2>
+<h3>3.1 确认态</h3>
+<div class="dd"><div class="do"><div class="dp">
+<h3>删除工具</h3>
+<p class="ddesc">删除后无法恢复，确定要删除吗？</p>
+<div class="da"><button class="bc">取消</button><button class="bd">确认删除</button></div>
+</div></div></div>
+<h3>3.2 删除中</h3>
+<div class="dd"><div class="do"><div class="dp">
+<h3>删除帖子</h3>
+<p class="ddesc">删除后无法恢复，确定要删除吗？</p>
+<div class="da"><button class="bc" disabled>取消</button><button class="bd" disabled><span class="spinner"></span> 确认删除</button></div>
+</div></div></div>
+
+<h2>4. 编辑页表单 <span class="theme-badge theme-badge-dk">暗色</span></h2>
+<h3>4.1 帖子编辑页</h3>
+<div class="glass-card" style="max-width:560px">
+<h3 style="font-size:22px;font-weight:700;color:var(--text-primary);margin-bottom:20px">编辑帖子</h3>
+<div class="form-group"><label class="form-label">标题</label><input class="form-input" value="Spring Boot 3.2 新特性讨论" aria-label="标题"></div>
+<div class="form-group"><label class="form-label">分类</label><select class="form-input" style="appearance:auto"><option>技术讨论</option><option>问题求助</option></select></div>
+<div class="form-group"><label class="form-label">内容（Markdown）</label><textarea class="form-input form-textarea" aria-label="内容">## Spring Boot 3.2 新特性
+
+虚拟线程支持正式可用...</textarea></div>
+<button class="btn-submit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> 发布</button>
+</div>
+<h3>4.2 微课编辑页</h3>
+<div class="glass-card" style="max-width:560px">
+<h3 style="font-size:22px;font-weight:700;color:var(--text-primary);margin-bottom:8px">编辑微课</h3>
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">仅可编辑标题和简介，视频文件不可替换</p>
+<div class="form-group"><label class="form-label">标题</label><input class="form-input" value="Vue 3 Composition API 实战" aria-label="标题"></div>
+<div class="form-group"><label class="form-label">简介</label><textarea class="form-input form-textarea" aria-label="简介">本微课讲解 Composition API 的核心概念...</textarea></div>
+<button class="btn-submit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> 保存</button>
+</div>
+
+<h2>可访问性检查</h2>
+<ul class="checklist">
+<li>纯图标按钮有 aria-label（编辑/删除）</li>
+<li>焦点环：暗色 #00FFFF / 亮色 #7c3aed，offset 2px</li>
+<li>删除按钮白字 on #EF4444 对比度 4.7:1 (AA)</li>
+<li>prefers-reduced-motion 关闭动画</li>
+<li>键盘可达：Tab 循环、Esc 关闭对话框、Enter 触发</li>
+<li>确认对话框 role="dialog" + aria-modal="true"</li>
+</ul>
+</div>
+<script>
+function toggleTheme(){const h=document.documentElement;const c=h.getAttribute('data-theme');const n=c==='dark'?'light':'dark';h.setAttribute('data-theme',n);document.getElementById('theme-label').textContent=n==='dark'?'切换到浅色':'切换到暗色'}
+</script>
+</body>
+</html>

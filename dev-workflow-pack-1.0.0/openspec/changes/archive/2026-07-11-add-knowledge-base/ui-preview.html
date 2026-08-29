@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodingHub - Knowledge Base UI Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ========== CSS RESET ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Sora', sans-serif; line-height: 1.6; min-height: 100vh; overflow-x: hidden; transition: background-color 0.4s ease, color 0.4s ease; }
+
+/* ========== THEME VARIABLES ========== */
+[data-theme="dark"] {
+  --bg-primary: #09090b;
+  --bg-secondary: #0f0f12;
+  --bg-card: rgba(15,15,20,0.7);
+  --bg-glass: rgba(255,255,255,0.03);
+  --accent-1: #8b5cf6;
+  --accent-2: #06b6d4;
+  --accent-3: #ec4899;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --border-color: rgba(255,255,255,0.08);
+  --border-glow: rgba(139,92,246,0.3);
+  --focus-ring: #00FFFF;
+  --danger: #ef4444;
+  --danger-bg: rgba(239,68,68,0.1);
+  --success: #22c55e;
+  --success-bg: rgba(34,197,94,0.1);
+  --grid-overlay: rgba(255,255,255,0.02);
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-card-hover: 0 8px 40px rgba(139,92,246,0.15);
+  --orb-opacity: 0.12;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-card: rgba(255,255,255,0.9);
+  --bg-glass: rgba(255,255,255,0.8);
+  --accent-1: #7c3aed;
+  --accent-2: #0891b2;
+  --accent-3: #db2777;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: rgba(0,0,0,0.08);
+  --border-glow: rgba(124,58,237,0.3);
+  --focus-ring: #7c3aed;
+  --danger: #dc2626;
+  --danger-bg: rgba(220,38,38,0.08);
+  --success: #16a34a;
+  --success-bg: rgba(22,163,74,0.08);
+  --grid-overlay: transparent;
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.06);
+  --shadow-card-hover: 0 8px 40px rgba(124,58,237,0.1);
+  --orb-opacity: 0.08;
+}
+
+/* ========== BACKGROUND EFFECTS ========== */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.bg-grid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid-overlay) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-overlay) 1px, transparent 1px);
+  background-size: 60px 60px;
+  transition: opacity 0.4s ease;
+}
+
+[data-theme="light"] .bg-grid-overlay { opacity: 0; }
+
+.bg-orbs {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bg-orbs .orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: var(--orb-opacity);
+  transition: opacity 0.4s ease;
+}
+
+.bg-orbs .orb-1 {
+  width: 600px; height: 600px;
+  background: var(--accent-1);
+  top: -200px; left: -100px;
+  animation: orbFloat1 20s ease-in-out infinite;
+}
+
+.bg-orbs .orb-2 {
+  width: 500px; height: 500px;
+  background: var(--accent-2);
+  bottom: -150px; right: -100px;
+  animation: orbFloat2 25s ease-in-out infinite;
+}
+
+.bg-orbs .orb-3 {
+  width: 400px; height: 400px;
+  background: var(--accent-3);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  animation: orbFloat3 18s ease-in-out infinite;
+}
+
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(80px, 60px); }
+  66% { transform: translate(-40px, 30px); }
+}
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(-60px, -80px); }
+  66% { transform: translate(50px, -40px); }
+}
+@keyframes orbFloat3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.15); }
+}
+
+/* ========== LAYOUT ========== */
+.app-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+}
+
+/* ========== THEME TOGGLE ========== */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  border-color: var(--border-glow);
+  color: var(--accent-1);
+  box-shadow: 0 0 20px var(--border-glow);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.theme-toggle svg { width: 20px; height: 20px; }
+
+.theme-toggle .icon-sun { display: none; }
+.theme-toggle .icon-moon { display: block; }
+[data-theme="light"] .theme-toggle .icon-sun { display: block; }
+[data-theme="light"] .theme-toggle .icon-moon { display: none; }
+
+/* ========== SECTION DIVIDER ========== */
+.section-divider {
+  margin: 64px 0 40px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border-color);
+}
+
+.section-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 32px;
+}
+
+/* ========== TYPOGRAPHY ========== */
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.mono { font-family: 'Space Mono', monospace; }
+
+/* ========== BUTTONS ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(139,92,246,0.25);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 24px rgba(139,92,246,0.4);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--bg-glass);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  border-color: var(--border-glow);
+  color: var(--text-primary);
+}
+
+.btn-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid rgba(239,68,68,0.2);
+}
+
+.btn-danger:hover {
+  background: rgba(239,68,68,0.18);
+  border-color: rgba(239,68,68,0.4);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 8px 12px;
+}
+
+.btn-ghost:hover { color: var(--text-primary); }
+
+.btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
+
+/* ========== GLASS CARD ========== */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: var(--border-glow);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.glass-card-static {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+}
+
+/* ========== FORM ELEMENTS ========== */
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  transition: all 0.25s ease;
+}
+
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--accent-1);
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
+}
+
+.form-input:focus-visible, .form-textarea:focus-visible, .form-select:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.form-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.form-group { margin-bottom: 20px; }
+
+.form-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ========== BADGE ========== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-accent {
+  background: rgba(139,92,246,0.12);
+  color: var(--accent-1);
+  border: 1px solid rgba(139,92,246,0.2);
+}
+
+.badge-muted {
+  background: var(--bg-glass);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.badge-success {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid rgba(34,197,94,0.2);
+}
+
+/* ========== TOGGLE SWITCH ========== */
+.toggle-track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--border-color);
+  cursor: pointer;
+  transition: background 0.25s ease;
+  border: none;
+  padding: 0;
+}
+
+.toggle-track[aria-checked="true"] {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.toggle-track[aria-checked="true"] .toggle-thumb {
+  transform: translateX(20px);
+}
+
+/* ========== PROGRESS BAR ========== */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  transition: width 0.6s ease;
+}
+
+/* ========== RELEVANCE BAR ========== */
+.relevance-bar {
+  width: 80px;
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.relevance-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-2), var(--accent-1));
+}
+
+/* ========== SPINNER ========== */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-1);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ========== COLLAPSIBLE ========== */
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 14px 0;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-family: 'Sora', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  width: 100%;
+}
+
+.collapsible-header:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.collapsible-header svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+  transition: transform 0.25s ease;
+}
+
+.collapsible-header[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.collapsible-body {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.35s ease;
+}
+
+.collapsible-body.expanded {
+  max-height: 600px;
+}
+
+/* ========== AUTH INDICATOR ========== */
+.auth-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  display: inline-block;
+  margin-left: 6px;
+}
+
+/* ================================================================
+   PAGE A: KnowledgeListPage
+   ================================================================ */
+.list-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.list-header-left h1 {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.list-header-left p {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.list-layout {
+  display: flex;
+  gap: 28px;
+}
+
+.list-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.sidebar-nav {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: 'Sora', sans-serif;
+  text-align: left;
+}
+
+.sidebar-nav-item:hover {
+  background: var(--bg-glass);
+  color: var(--text-primary);
+}
+
+.sidebar-nav-item.active {
+  background: rgba(139,92,246,0.1);
+  color: var(--accent-1);
+  font-weight: 500;
+}
+
+.sidebar-nav-item:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.sidebar-nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+.card-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.knowledge-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  cursor: pointer;
+}
+
+.kc-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.kc-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.kc-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.kc-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.kc-meta-item svg { width: 13px; height: 13px; }
+
+/* ================================================================
+   PAGE B: KnowledgeDetailPage
+   ================================================================ */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: 'Sora', sans-serif;
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  transition: color 0.2s ease;
+}
+
+.back-btn:hover { color: var(--text-primary); }
+.back-btn:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.back-btn svg { width: 16px; height: 16px; }
+
+.detail-title-card {
+  padding: 32px;
+  margin-bottom: 28px;
+}
+
+.detail-title-card h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.detail-stats {
+  display: flex;
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.stat-item svg { width: 15px; height: 15px; color: var(--accent-2); }
+
+.stat-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.search-section { margin-bottom: 28px; }
+
+.search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-bar .form-input { flex: 1; }
+
+.search-result-card {
+  padding: 18px 20px;
+  margin-bottom: 12px;
+}
+
+.sr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.sr-filename {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--accent-2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sr-filename svg { width: 14px; height: 14px; }
+
+.sr-score {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.sr-chunk {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  padding: 10px 14px;
+  background: var(--bg-glass);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent-1);
+}
+
+.doc-list-section { margin-bottom: 28px; }
+
+.doc-list-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.doc-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  margin-bottom: 8px;
+}
+
+.doc-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.doc-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(139,92,246,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-1);
+}
+
+.doc-icon svg { width: 18px; height: 18px; }
+
+.doc-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.doc-details {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.doc-actions { display: flex; gap: 6px; }
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-glass);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  border-color: var(--border-glow);
+  color: var(--text-primary);
+}
+
+.icon-btn.danger:hover {
+  border-color: rgba(239,68,68,0.4);
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.icon-btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.icon-btn svg { width: 15px; height: 15px; }
+
+.detail-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ================================================================
+   PAGE C: KnowledgeEditorPage
+   ================================================================ */
+.editor-form {
+  max-width: 640px;
+}
+
+.editor-form h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 28px;
+}
+
+.editor-form .form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+.advanced-section {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 4px 18px 18px;
+  margin-top: 8px;
+}
+
+.advanced-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+.toggle-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* ================================================================
+   PAGE D: DocumentUpload States
+   ================================================================ */
+.upload-states-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.upload-card {
+  padding: 24px;
+}
+
+.upload-card h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.dropzone {
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 36px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.dropzone:hover {
+  border-color: var(--accent-1);
+  background: rgba(139,92,246,0.04);
+}
+
+.dropzone svg {
+  width: 36px;
+  height: 36px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.dropzone p {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.upload-progress-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 36px 20px;
+}
+
+.upload-progress-area .spinner { width: 28px; height: 28px; }
+
+.upload-filename {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.upload-percent {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-1);
+}
+
+.upload-success-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 36px 20px;
+}
+
+.success-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--success-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--success);
+}
+
+.success-icon svg { width: 24px; height: 24px; }
+
+.success-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--success);
+}
+
+.success-filename {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ================================================================
+   RESPONSIVE GRID DEMO
+   ================================================================ */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.responsive-card {
+  padding: 24px;
+  text-align: center;
+}
+
+.responsive-card .rc-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(6,182,212,0.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  color: var(--accent-1);
+}
+
+.responsive-card .rc-icon svg { width: 22px; height: 22px; }
+
+.responsive-card h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.responsive-card p {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1024px) {
+  .card-grid,
+  .upload-states-grid,
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .list-sidebar { width: 170px; }
+}
+
+@media (max-width: 768px) {
+  .list-layout { flex-direction: column; }
+  .list-sidebar { width: 100%; }
+  .sidebar-nav { flex-direction: row; overflow-x: auto; }
+  .sidebar-nav-item { white-space: nowrap; }
+  .card-grid,
+  .upload-states-grid,
+  .responsive-grid {
+    grid-template-columns: 1fr;
+  }
+  .list-header { flex-direction: column; align-items: flex-start; }
+  .list-header-left h1 { font-size: 28px; }
+  .detail-title-card { padding: 20px; }
+  .detail-title-card h2 { font-size: 22px; }
+  .advanced-grid { grid-template-columns: 1fr; }
+  .search-bar { flex-direction: column; }
+  .detail-actions { flex-direction: column; }
+  .detail-actions .btn { width: 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- Background Effects -->
+<div class="bg-grid-overlay" aria-hidden="true"></div>
+<div class="bg-orbs" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" type="button">
+  <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
+
+<div class="app-container">
+
+<!-- ================================================================
+     PAGE A: KnowledgeListPage
+     ================================================================ -->
+<section aria-label="Knowledge base list preview">
+  <div class="section-label">Page A</div>
+  <div class="section-title">KnowledgeListPage</div>
+
+  <!-- Header -->
+  <div class="list-header">
+    <div class="list-header-left">
+      <h1><span class="gradient-text">知识库</span></h1>
+      <p>管理和检索你的知识文档，支持智能分块与语义搜索</p>
+    </div>
+    <button class="btn btn-primary" type="button">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      创建知识库
+    </button>
+  </div>
+
+  <!-- Layout: Sidebar + Card Grid -->
+  <div class="list-layout">
+    <!-- Sidebar -->
+    <nav class="list-sidebar" aria-label="Knowledge base filters">
+      <ul class="sidebar-nav">
+        <li>
+          <button class="sidebar-nav-item active" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            全部知识库
+          </button>
+        </li>
+        <li>
+          <button class="sidebar-nav-item" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            我的知识库
+            <span class="auth-dot" title="Requires authentication"></span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Card Grid -->
+    <div class="card-grid">
+      <!-- Card 1 -->
+      <div class="glass-card knowledge-card" tabindex="0" role="article" aria-label="H3C 云计算技术文档">
+        <div class="kc-name">H3C 云计算技术文档</div>
+        <div class="kc-desc">涵盖 H3C CloudOS、CAS 虚拟化、分布式存储等核心产品的部署指南、最佳实践和故障排查手册，适合运维工程师参考。</div>
+        <div class="kc-meta">
+          <span class="kc-meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            张工
+          </span>
+          <span class="kc-meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            12 文档
+          </span>
+          <span class="kc-meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            3 天前
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="glass-card knowledge-card" tabindex="0" role="article" aria-label="前端开发规范">
+        <div class="kc-name">前端开发规范</div>
+        <div class="kc-desc">团队前端编码规范、组件设计原则、Code Review 检查清单以及 Vue 3 + TypeScript 项目最佳实践汇总。</div>
+        <div class="kc-meta">
+          <span class="kc-meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            李婷
+          </span>
+          <span class="kc-meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            8 文档
+          </span>
+          <span class="kc-meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            1 周前
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="glass-card knowledge-card" tabindex="0" role="article" aria-label="Kubernetes 运维手册">
+        <div class="kc-name">Kubernetes 运维手册</div>
+        <div class="kc-desc">K8s 集群搭建、Helm Chart 管理、监控告警配置、常见故障处理及性能调优方案，持续更新中。</div>
+        <div class="kc-meta">
+          <span class="kc-meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            王磊
+          </span>
+          <span class="kc-meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            23 文档
+          </span>
+          <span class="kc-meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            2 周前
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PAGE B: KnowledgeDetailPage
+     ================================================================ -->
+<section class="section-divider" aria-label="Knowledge base detail preview">
+  <div class="section-label">Page B</div>
+  <div class="section-title">KnowledgeDetailPage</div>
+
+  <!-- Back Button -->
+  <button class="back-btn" type="button">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    返回知识库列表
+  </button>
+
+  <!-- Title Card -->
+  <div class="glass-card-static detail-title-card">
+    <h2>H3C 云计算技术文档</h2>
+    <div class="detail-meta">
+      <span class="badge badge-accent">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        张工
+      </span>
+      <span class="badge badge-muted">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        2025-06-10
+      </span>
+    </div>
+    <div class="detail-stats">
+      <div class="stat-item">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span class="stat-value">12</span> 文档
+      </div>
+      <div class="stat-item">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        <span class="stat-value">156</span> 分块
+      </div>
+      <div class="stat-item">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="stat-value">48</span> 次检索
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-bar">
+      <input type="text" class="form-input" placeholder="搜索知识库内容..." value="CAS 虚拟机迁移" aria-label="Search knowledge base">
+      <button class="btn btn-primary" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        搜索
+      </button>
+    </div>
+
+    <!-- Search Results -->
+    <div class="glass-card search-result-card">
+      <div class="sr-header">
+        <span class="sr-filename">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          CAS_虚拟机管理指南.pdf
+        </span>
+        <span class="sr-score">
+          <span class="relevance-bar"><span class="relevance-fill" style="width:92%"></span></span>
+          0.92
+        </span>
+      </div>
+      <div class="sr-chunk">虚拟机在线迁移（Live Migration）允许在不中断业务的情况下将虚拟机从一台物理主机迁移到另一台物理主机。迁移过程需要确保源端和目标端的存储和网络配置兼容...</div>
+    </div>
+
+    <div class="glass-card search-result-card">
+      <div class="sr-header">
+        <span class="sr-filename">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          CAS_高可用配置手册.pdf
+        </span>
+        <span class="sr-score">
+          <span class="relevance-bar"><span class="relevance-fill" style="width:78%"></span></span>
+          0.78
+        </span>
+      </div>
+      <div class="sr-chunk">在配置 HA 集群前，请确保所有 CVK 主机已加入同一集群，并且共享存储已正确挂载。HA 策略支持虚拟机级别和主机级别的故障自动切换...</div>
+    </div>
+
+    <div class="glass-card search-result-card">
+      <div class="sr-header">
+        <span class="sr-filename">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          CloudOS_运维指南_v5.pdf
+        </span>
+        <span class="sr-score">
+          <span class="relevance-bar"><span class="relevance-fill" style="width:61%"></span></span>
+          0.61
+        </span>
+      </div>
+      <div class="sr-chunk">CloudOS 平台支持通过统一控制台管理底层 CAS 虚拟化资源池。管理员可以在资源概览页面查看各集群的虚拟机分布情况、资源使用率及迁移历史记录...</div>
+    </div>
+  </div>
+
+  <!-- Document List -->
+  <div class="doc-list-section">
+    <h3>文档列表</h3>
+
+    <div class="glass-card doc-item">
+      <div class="doc-info">
+        <div class="doc-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div>
+          <div class="doc-name">CAS_虚拟机管理指南.pdf</div>
+          <div class="doc-details">
+            <span>2.4 MB</span>
+            <span>18 分块</span>
+          </div>
+        </div>
+      </div>
+      <div class="doc-actions">
+        <button class="icon-btn danger" aria-label="Delete document" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="glass-card doc-item">
+      <div class="doc-info">
+        <div class="doc-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div>
+          <div class="doc-name">CAS_高可用配置手册.pdf</div>
+          <div class="doc-details">
+            <span>1.8 MB</span>
+            <span>14 分块</span>
+          </div>
+        </div>
+      </div>
+      <div class="doc-actions">
+        <button class="icon-btn danger" aria-label="Delete document" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="glass-card doc-item">
+      <div class="doc-info">
+        <div class="doc-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div>
+          <div class="doc-name">CloudOS_运维指南_v5.pdf</div>
+          <div class="doc-details">
+            <span>5.1 MB</span>
+            <span>32 分块</span>
+          </div>
+        </div>
+      </div>
+      <div class="doc-actions">
+        <button class="icon-btn danger" aria-label="Delete document" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="detail-actions">
+    <button class="btn btn-primary" type="button">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      上传文档
+    </button>
+    <button class="btn btn-secondary" type="button">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      配置
+    </button>
+    <button class="btn btn-danger" type="button">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      删除知识库
+    </button>
+  </div>
+</section>
+
+<!-- ================================================================
+     PAGE C: KnowledgeEditorPage
+     ================================================================ -->
+<section class="section-divider" aria-label="Knowledge base editor preview">
+  <div class="section-label">Page C</div>
+  <div class="section-title">KnowledgeEditorPage</div>
+
+  <div class="editor-form">
+    <h2><span class="gradient-text">创建知识库</span></h2>
+
+    <!-- Name -->
+    <div class="form-group">
+      <label class="form-label" for="kb-name">名称 <span style="color:var(--danger)">*</span></label>
+      <input type="text" id="kb-name" class="form-input" placeholder="输入知识库名称" value="">
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label class="form-label" for="kb-desc">描述</label>
+      <textarea id="kb-desc" class="form-textarea" placeholder="简要描述知识库的用途和内容范围..."></textarea>
+    </div>
+
+    <!-- Advanced Configuration (Collapsible) -->
+    <div class="advanced-section">
+      <button class="collapsible-header" aria-expanded="true" aria-controls="advancedBody" type="button" id="advToggle">
+        <span>高级配置</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="collapsible-body expanded" id="advancedBody">
+        <div class="advanced-grid">
+          <div class="form-group">
+            <label class="form-label" for="chunk-mode">分块模式</label>
+            <select id="chunk-mode" class="form-select">
+              <option value="structural" selected>structural - 结构化分块</option>
+              <option value="semantic">semantic - 语义分块</option>
+              <option value="recursive">recursive - 递归分块</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="chunk-size">分块大小 (tokens)</label>
+            <input type="number" id="chunk-size" class="form-input" value="800" min="100" max="4000">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="chunk-overlap">分块重叠 (tokens)</label>
+            <input type="number" id="chunk-overlap" class="form-input" value="50" min="0" max="500">
+          </div>
+          <div class="form-group">
+            <div class="toggle-row">
+              <span class="toggle-label">Rerank 重排序</span>
+              <button class="toggle-track" role="switch" aria-checked="true" aria-label="Toggle rerank" type="button" id="rerankToggle">
+                <span class="toggle-thumb"></span>
+              </button>
+            </div>
+            <div class="form-hint">启用后检索结果将经过二次排序，提升相关性</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button class="btn btn-secondary" type="button">取消</button>
+      <button class="btn btn-primary" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        创建知识库
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PAGE D: DocumentUpload States
+     ================================================================ -->
+<section class="section-divider" aria-label="Document upload component states">
+  <div class="section-label">Page D</div>
+  <div class="section-title">DocumentUpload Component States</div>
+
+  <div class="upload-states-grid">
+    <!-- Idle State -->
+    <div class="glass-card-static upload-card">
+      <h4>Idle</h4>
+      <div class="dropzone" role="button" tabindex="0" aria-label="Upload files by dragging or clicking">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p>拖拽文件到此处或点击上传</p>
+      </div>
+    </div>
+
+    <!-- Uploading State -->
+    <div class="glass-card-static upload-card">
+      <h4>Uploading</h4>
+      <div class="upload-progress-area">
+        <div class="spinner"></div>
+        <div class="upload-filename">CAS_网络配置手册.pdf</div>
+        <div class="progress-bar" style="width: 100%">
+          <div class="progress-fill" style="width: 67%"></div>
+        </div>
+        <div class="upload-percent">67%</div>
+      </div>
+    </div>
+
+    <!-- Success State -->
+    <div class="glass-card-static upload-card">
+      <h4>Success</h4>
+      <div class="upload-success-area">
+        <div class="success-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="success-text">上传成功</div>
+        <div class="success-filename">CAS_存储管理指南.pdf</div>
+        <span class="badge badge-success">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><polyline points="20 6 9 17 4 12"/></svg>
+          已分块 (24 chunks)
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     RESPONSIVE GRID DEMO
+     ================================================================ -->
+<section class="section-divider" aria-label="Responsive grid demonstration">
+  <div class="section-label">Layout</div>
+  <div class="section-title">Responsive Grid (3-col / 2-col / 1-col)</div>
+
+  <div class="responsive-grid">
+    <div class="glass-card responsive-card">
+      <div class="rc-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      </div>
+      <h4>Desktop (3-col)</h4>
+      <p>三栏布局，宽屏展示</p>
+    </div>
+    <div class="glass-card responsive-card">
+      <div class="rc-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <h4>Tablet (2-col)</h4>
+      <p>两栏布局，平板适配</p>
+    </div>
+    <div class="glass-card responsive-card">
+      <div class="rc-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      </div>
+      <h4>Mobile (1-col)</h4>
+      <p>单栏布局，移动端适配</p>
+    </div>
+  </div>
+</section>
+
+</div><!-- /app-container -->
+
+<script>
+(function() {
+  'use strict';
+
+  // ===== Theme Toggle =====
+  var html = document.documentElement;
+  var toggle = document.getElementById('themeToggle');
+
+  function getStoredTheme() {
+    try { return localStorage.getItem('kb-ui-theme'); } catch(e) { return null; }
+  }
+
+  function setTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    try { localStorage.setItem('kb-ui-theme', theme); } catch(e) {}
+  }
+
+  var stored = getStoredTheme();
+  if (stored) setTheme(stored);
+
+  toggle.addEventListener('click', function() {
+    var current = html.getAttribute('data-theme');
+    setTheme(current === 'dark' ? 'light' : 'dark');
+  });
+
+  // ===== Collapsible: Advanced Config =====
+  var advToggle = document.getElementById('advToggle');
+  var advBody = document.getElementById('advancedBody');
+
+  advToggle.addEventListener('click', function() {
+    var expanded = advToggle.getAttribute('aria-expanded') === 'true';
+    advToggle.setAttribute('aria-expanded', String(!expanded));
+    if (expanded) {
+      advBody.classList.remove('expanded');
+    } else {
+      advBody.classList.add('expanded');
+    }
+  });
+
+  // ===== Toggle Switch: Rerank =====
+  var rerankToggle = document.getElementById('rerankToggle');
+  rerankToggle.addEventListener('click', function() {
+    var checked = rerankToggle.getAttribute('aria-checked') === 'true';
+    rerankToggle.setAttribute('aria-checked', String(!checked));
+  });
+
+  // ===== Animate progress bar on load =====
+  var progressFill = document.querySelector('.progress-fill');
+  if (progressFill) {
+    progressFill.style.width = '0%';
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        progressFill.style.width = '67%';
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>

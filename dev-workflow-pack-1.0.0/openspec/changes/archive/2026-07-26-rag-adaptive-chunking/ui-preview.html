@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Preview: RAG 自适应切片 - 分片预览面板</title>
+<style>
+:root {
+  --bg-primary: #09090b;
+  --bg-secondary: #0f0f12;
+  --bg-card: rgba(15,15,20,0.7);
+  --bg-glass: rgba(255,255,255,0.03);
+  --accent-1: #8b5cf6;
+  --accent-2: #06b6d4;
+  --accent-3: #ec4899;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --border-color: rgba(255,255,255,0.08);
+  --border-glow: rgba(139,92,246,0.3);
+  --focus-ring: #00FFFF;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --destructive: #EF4444;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
+  --shadow-glow: 0 0 40px rgba(139,92,246,0.15);
+  --font-display: 'Sora', -apple-system, sans-serif;
+  --font-mono: 'Space Mono', 'Fira Code', monospace;
+}
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-card: rgba(255,255,255,0.9);
+  --bg-glass: rgba(255,255,255,0.8);
+  --accent-1: #7c3aed;
+  --accent-2: #0891b2;
+  --accent-3: #db2777;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: rgba(0,0,0,0.08);
+  --border-glow: rgba(124,58,237,0.3);
+  --focus-ring: #7c3aed;
+  --success: #059669;
+  --warning: #d97706;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.12);
+  --shadow-glow: 0 0 40px rgba(124,58,237,0.1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-display);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background 0.4s, color 0.4s;
+  padding: 32px;
+}
+[data-theme="dark"] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139,92,246,0.15), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 50%, rgba(6,182,212,0.08), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+.container { max-width: 960px; margin: 0 auto; position: relative; z-index: 1; }
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 32px;
+}
+.page-header h1 {
+  font-size: 24px; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.page-header p { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+.theme-toggle {
+  width: 40px; height: 40px; border-radius: 8px;
+  background: var(--bg-glass); border: 1px solid var(--border-color);
+  color: var(--text-primary); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.theme-toggle:hover { border-color: var(--border-glow); box-shadow: var(--shadow-glow); }
+.theme-toggle:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+/* Panel */
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  margin-bottom: 24px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.panel-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+}
+.panel-header h2 { font-size: 15px; font-weight: 600; }
+.panel-header svg { color: var(--text-muted); }
+.panel-body { padding: 20px; }
+
+/* Input area */
+.input-group { margin-bottom: 16px; }
+.input-group label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
+.text-input {
+  width: 100%; height: 160px; resize: vertical;
+  background: rgba(0,0,0,0.3); border: 1px solid var(--border-color);
+  border-radius: 8px; padding: 12px;
+  color: var(--text-primary); font-family: var(--font-mono); font-size: 13px;
+  line-height: 1.6; transition: border-color 0.2s;
+}
+[data-theme="light"] .text-input { background: #ffffff; }
+.text-input:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; border-color: var(--accent-2); }
+.text-input::placeholder { color: var(--text-muted); }
+
+/* Controls row */
+.controls-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
+.control-item { display: flex; flex-direction: column; gap: 4px; }
+.control-item label { font-size: 12px; color: var(--text-muted); }
+.select-input, .number-input {
+  height: 36px; border-radius: 8px; padding: 0 12px;
+  background: var(--bg-glass); border: 1px solid var(--border-color);
+  color: var(--text-primary); font-size: 13px; font-family: var(--font-display);
+  transition: border-color 0.2s;
+}
+.select-input:focus, .number-input:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.number-input { width: 80px; }
+.btn-primary {
+  height: 36px; padding: 0 20px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff; font-size: 13px; font-weight: 600;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  transition: all 0.2s;
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: var(--shadow-glow); }
+.btn-primary:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* Stats bar */
+.stats-bar {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  padding: 12px 16px; margin-bottom: 16px;
+  background: var(--bg-glass); border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+.stat-item { display: flex; flex-direction: column; gap: 2px; }
+.stat-item .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-item .stat-value { font-size: 16px; font-weight: 700; font-family: var(--font-mono); color: var(--text-primary); }
+
+/* Strategy badge */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+}
+.badge-auto { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+.badge-structural { background: rgba(6,182,212,0.15); color: #67e8f9; border: 1px solid rgba(6,182,212,0.3); }
+.badge-recursive { background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--border-color); }
+[data-theme="light"] .badge-auto { background: rgba(124,58,237,0.1); color: #6d28d9; }
+[data-theme="light"] .badge-structural { background: rgba(8,145,178,0.1); color: #0e7490; }
+
+/* Chunk cards */
+.chunk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 12px; }
+.chunk-card {
+  background: var(--bg-glass); border: 1px solid var(--border-color);
+  border-radius: 12px; padding: 14px 16px;
+  cursor: pointer; transition: all 0.2s;
+}
+[data-theme="light"] .chunk-card { background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.chunk-card:hover { border-color: var(--border-glow); box-shadow: var(--shadow-glow); transform: translateY(-1px); }
+.chunk-card:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.chunk-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.chunk-seq { font-family: var(--font-mono); font-size: 12px; color: var(--accent-2); font-weight: 700; }
+.chunk-meta { display: flex; align-items: center; gap: 8px; }
+.chunk-chars { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+.chunk-context {
+  font-size: 11px; color: var(--accent-1); opacity: 0.8;
+  margin-bottom: 6px; font-style: italic;
+}
+.chunk-text {
+  font-size: 13px; line-height: 1.5; color: var(--text-secondary);
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden; font-family: var(--font-mono);
+}
+.chunk-card.expanded .chunk-text { -webkit-line-clamp: unset; overflow: visible; }
+
+/* Document list */
+.doc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.doc-table th {
+  text-align: left; padding: 10px 12px;
+  color: var(--text-muted); font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.5px; border-bottom: 1px solid var(--border-color);
+}
+.doc-table td { padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); }
+.doc-table tr:hover td { background: var(--bg-glass); }
+.status-icon { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; }
+.status-ready { color: var(--success); }
+.status-processing { color: var(--warning); }
+.status-failed { color: var(--destructive); }
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-glass) 25%, rgba(139,92,246,0.05) 50%, var(--bg-glass) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } .chunk-card:hover { transform: none; } }
+
+/* Empty state */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 48px 24px; color: var(--text-muted);
+}
+.empty-state svg { opacity: 0.4; }
+.empty-state p { font-size: 14px; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  body { padding: 16px; }
+  .chunk-list { grid-template-columns: 1fr; }
+  .controls-row { flex-direction: column; align-items: stretch; }
+  .stats-bar { flex-direction: column; gap: 8px; }
+  .text-input { height: 120px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>分片预览面板</h1>
+      <p>RAG 自适应切片 · ChunkingPreviewPanel 组件预览</p>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Chunking Preview Panel -->
+  <div class="panel">
+    <div class="panel-header" role="button" aria-expanded="true" tabindex="0">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      <h2>分片预览</h2>
+      <span class="badge badge-auto" style="margin-left: auto;">auto</span>
+    </div>
+    <div class="panel-body">
+      <!-- Input -->
+      <div class="input-group">
+        <label for="sample-text">样本文本（最大 64KB）</label>
+        <textarea id="sample-text" class="text-input" placeholder="粘贴 Markdown / 纯文本片段，点击「运行预览」查看切分效果..."># 知识库架构
+
+## 向量存储
+
+使用 zvec 嵌入式向量库，支持 HNSW 索引。每个 collection 独立存储。
+
+## 切片策略
+
+| 模式 | 说明 |
+| --- | --- |
+| structural | 按标题/代码块/表格边界切分 |
+| semantic | 按语义相似度断点切分 |
+| recursive | 递归字符切分（兜底） |
+
+## 检索流程
+
+1. Query embedding（加 "query: " 前缀）
+2. ANN search → top_k*5 候选
+3. Rerank（bge-reranker-v2-m3）
+4. Context expansion（邻居 chunk）</textarea>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-row">
+        <div class="control-item">
+          <label for="strategy-select">策略</label>
+          <select id="strategy-select" class="select-input" aria-label="切片策略">
+            <option value="auto" selected>auto（推荐）</option>
+            <option value="structural">structural</option>
+            <option value="recursive">recursive</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label for="chunk-size">Chunk Size</label>
+          <input id="chunk-size" type="number" class="number-input" value="800" min="100" max="4000">
+        </div>
+        <div class="control-item">
+          <label for="chunk-overlap">Overlap</label>
+          <input id="chunk-overlap" type="number" class="number-input" value="50" min="0" max="500">
+        </div>
+        <button class="btn-primary" aria-label="运行分片预览">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          运行预览
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-bar" aria-label="切分统计">
+        <div class="stat-item"><span class="stat-label">Chunks</span><span class="stat-value">4</span></div>
+        <div class="stat-item"><span class="stat-label">Avg</span><span class="stat-value">186</span></div>
+        <div class="stat-item"><span class="stat-label">Min</span><span class="stat-value">92</span></div>
+        <div class="stat-item"><span class="stat-label">Max</span><span class="stat-value">312</span></div>
+        <div class="stat-item"><span class="stat-label">StdDev</span><span class="stat-value">87</span></div>
+        <div class="stat-item"><span class="stat-label">Strategy</span><span class="badge badge-structural">structural</span></div>
+      </div>
+
+      <!-- Chunk cards -->
+      <div class="chunk-list" role="list" aria-label="切分结果">
+        <div class="chunk-card" role="listitem" tabindex="0" aria-label="Chunk 0, 142 字符">
+          <div class="chunk-card-header">
+            <span class="chunk-seq">#0</span>
+            <div class="chunk-meta"><span class="chunk-chars">142 chars</span></div>
+          </div>
+          <div class="chunk-context"># 知识库架构 > ## 向量存储</div>
+          <div class="chunk-text">使用 zvec 嵌入式向量库，支持 HNSW 索引。每个 collection 独立存储。</div>
+        </div>
+        <div class="chunk-card" role="listitem" tabindex="0" aria-label="Chunk 1, 312 字符">
+          <div class="chunk-card-header">
+            <span class="chunk-seq">#1</span>
+            <div class="chunk-meta"><span class="chunk-chars">312 chars</span></div>
+          </div>
+          <div class="chunk-context"># 知识库架构 > ## 切片策略</div>
+          <div class="chunk-text">| 模式 | 说明 |
+| --- | --- |
+| structural | 按标题/代码块/表格边界切分 |
+| semantic | 按语义相似度断点切分 |
+| recursive | 递归字符切分（兜底） |</div>
+        </div>
+        <div class="chunk-card" role="listitem" tabindex="0" aria-label="Chunk 2, 198 字符">
+          <div class="chunk-card-header">
+            <span class="chunk-seq">#2</span>
+            <div class="chunk-meta"><span class="chunk-chars">198 chars</span></div>
+          </div>
+          <div class="chunk-context"># 知识库架构 > ## 检索流程</div>
+          <div class="chunk-text">1. Query embedding（加 "query: " 前缀）
+2. ANN search → top_k*5 候选
+3. Rerank（bge-reranker-v2-m3）
+4. Context expansion（邻居 chunk）</div>
+        </div>
+        <div class="chunk-card" role="listitem" tabindex="0" aria-label="Chunk 3, 92 字符">
+          <div class="chunk-card-header">
+            <span class="chunk-seq">#3</span>
+            <div class="chunk-meta"><span class="chunk-chars">92 chars</span></div>
+          </div>
+          <div class="chunk-context"># 知识库架构</div>
+          <div class="chunk-text"># 知识库架构</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document List Enhancement -->
+  <div class="panel">
+    <div class="panel-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <h2>文档列表（增强）</h2>
+    </div>
+    <div class="panel-body" style="padding: 0;">
+      <table class="doc-table">
+        <thead>
+          <tr><th>文件名</th><th>大小</th><th>Chunks</th><th>策略</th><th>状态</th><th>上传时间</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color: var(--text-primary); font-weight: 500;">ARCHITECTURE.md</td>
+            <td>24.5 KB</td>
+            <td style="font-family: var(--font-mono);">18 chunks</td>
+            <td><span class="badge badge-structural">structural</span></td>
+            <td><span class="status-icon status-ready"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 就绪</span></td>
+            <td>2026-07-20</td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-primary); font-weight: 500;">api-reference.md</td>
+            <td>56.2 KB</td>
+            <td style="font-family: var(--font-mono);">42 chunks</td>
+            <td><span class="badge badge-structural">structural</span></td>
+            <td><span class="status-icon status-ready"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 就绪</span></td>
+            <td>2026-07-19</td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-primary); font-weight: 500;">meeting-notes.txt</td>
+            <td>3.1 KB</td>
+            <td style="font-family: var(--font-mono);">5 chunks</td>
+            <td><span class="badge badge-recursive">recursive</span></td>
+            <td><span class="status-icon status-processing"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="animation: spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> 处理中</span></td>
+            <td>2026-07-22</td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-primary); font-weight: 500;">broken-file.pdf</td>
+            <td>1.2 MB</td>
+            <td style="font-family: var(--font-mono); color: var(--text-muted);">—</td>
+            <td style="color: var(--text-muted);">—</td>
+            <td><span class="status-icon status-failed"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> 失败</span></td>
+            <td>2026-07-21</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>空状态</h2>
+    </div>
+    <div class="panel-body">
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <p>粘贴样本文本并点击「运行预览」查看切分效果</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>加载状态</h2>
+    </div>
+    <div class="panel-body">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="skeleton" style="height: 100px;"></div>
+        <div class="skeleton" style="height: 100px;"></div>
+        <div class="skeleton" style="height: 100px;"></div>
+        <div class="skeleton" style="height: 100px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }</style>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+}
+document.querySelectorAll('.chunk-card').forEach(card => {
+  card.addEventListener('click', () => card.classList.toggle('expanded'));
+  card.addEventListener('keydown', e => { if (e.key === 'Enter') card.classList.toggle('expanded'); });
+});
+</script>
+</body>
+</html>

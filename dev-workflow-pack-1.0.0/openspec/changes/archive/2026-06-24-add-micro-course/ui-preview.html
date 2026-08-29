@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>微课模块 UI 预览 — 双主题 | CodingHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg-primary:#09090b;--bg-secondary:#0f0f12;--bg-card:rgba(15,15,20,0.7);--bg-glass:rgba(255,255,255,0.03);--accent-1:#8b5cf6;--accent-2:#06b6d4;--accent-3:#ec4899;--text-primary:#fafafa;--text-secondary:#a1a1aa;--text-muted:#52525b;--border-color:rgba(255,255,255,0.08);--border-glow:rgba(139,92,246,0.3);--shadow-sm:0 2px 8px rgba(0,0,0,0.3);--shadow-md:0 8px 24px rgba(0,0,0,0.4);--shadow-glow:0 0 40px rgba(139,92,246,0.15);--focus-ring:#00FFFF;--like-active:#ec4899;--fav-active:#8b5cf6;--overlay-bg:rgba(0,0,0,0.6);--progress-bg:rgba(139,92,246,0.15);--progress-fill:linear-gradient(90deg,#8b5cf6,#06b6d4);--drop-border:rgba(255,255,255,0.15);--drop-hover-border:#8b5cf6;--drop-hover-bg:rgba(139,92,246,0.05);--error-color:#EF4444}
+[data-theme="light"]{--bg-primary:#f8fafc;--bg-secondary:#f1f5f9;--bg-card:rgba(255,255,255,0.9);--bg-glass:rgba(255,255,255,0.8);--accent-1:#7c3aed;--accent-2:#0891b2;--accent-3:#db2777;--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#94a3b8;--border-color:rgba(0,0,0,0.08);--border-glow:rgba(124,58,237,0.3);--shadow-sm:0 2px 8px rgba(0,0,0,0.08);--shadow-md:0 8px 24px rgba(0,0,0,0.12);--shadow-glow:0 0 40px rgba(124,58,237,0.1);--focus-ring:#7c3aed;--like-active:#db2777;--fav-active:#7c3aed;--overlay-bg:rgba(0,0,0,0.4);--progress-bg:rgba(124,58,237,0.1);--progress-fill:linear-gradient(90deg,#7c3aed,#0891b2);--drop-border:rgba(0,0,0,0.15);--drop-hover-border:#7c3aed;--drop-hover-bg:rgba(124,58,237,0.05);--error-color:#EF4444}
+body{font-family:'Sora',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;transition:background .4s,color .4s;position:relative;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0}
+[data-theme="dark"] body::before{background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(139,92,246,0.15),transparent),radial-gradient(ellipse 60% 40% at 80% 50%,rgba(6,182,212,0.08),transparent),radial-gradient(ellipse 50% 30% at 20% 80%,rgba(236,72,153,0.06),transparent)}
+[data-theme="light"] body::before{background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(124,58,237,0.08),transparent),radial-gradient(ellipse 60% 40% at 80% 50%,rgba(8,145,178,0.05),transparent)}
+.grid-overlay{position:fixed;inset:0;pointer-events:none;z-index:0}
+[data-theme="dark"] .grid-overlay{background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:60px 60px}
+[data-theme="light"] .grid-overlay{display:none}
+.container{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:32px 20px 80px}
+h1{font-size:28px;font-weight:700;margin-bottom:4px}
+.gradient{background:linear-gradient(135deg,var(--accent-1),var(--accent-2),var(--accent-3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+h2{font-size:20px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border-color)}
+h3{font-size:15px;font-weight:500;margin:24px 0 12px;color:var(--text-secondary)}
+p{color:var(--text-secondary);line-height:1.6;font-size:14px}
+.subtitle{color:var(--text-muted);font-size:14px;margin-bottom:8px}
+code{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent-2);background:rgba(6,182,212,0.08);padding:2px 6px;border-radius:4px}
+.page-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:32px}
+.theme-toggle{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-glass);cursor:pointer;font-family:'Sora',sans-serif;font-size:14px;font-weight:500;color:var(--text-primary);transition:all .2s;backdrop-filter:blur(10px)}
+.theme-toggle:hover{border-color:var(--accent-1);box-shadow:0 0 20px var(--border-glow)}
+.theme-toggle:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.theme-toggle .icon{width:18px;height:18px;flex-shrink:0}
+
+/* Video Card */
+.video-grid{display:grid;gap:20px;grid-template-columns:repeat(3,1fr)}
+@media(max-width:1023px){.video-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:639px){.video-grid{grid-template-columns:1fr}}
+.video-card{background:var(--bg-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--border-color);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .3s}
+.video-card:hover{border-color:var(--border-glow);box-shadow:var(--shadow-glow);transform:translateY(-2px)}
+.video-card:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.video-thumb{position:relative;width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,var(--bg-secondary),var(--bg-card));display:flex;align-items:center;justify-content:center;overflow:hidden}
+.video-thumb .play-icon{width:48px;height:48px;background:rgba(0,0,0,0.6);border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px)}
+.video-thumb .play-icon svg{width:24px;height:24px;color:#fff;margin-left:3px}
+.video-thumb .duration{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.75);color:#fff;font-family:'Space Mono',monospace;font-size:12px;padding:2px 6px;border-radius:4px}
+.video-info{padding:16px}
+.video-info .title{font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.video-info .meta{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--text-muted);flex-wrap:wrap}
+.video-info .meta-item{display:inline-flex;align-items:center;gap:4px}
+.video-info .meta-item svg{width:14px;height:14px}
+.video-info .uploader{font-size:12px;color:var(--text-secondary);margin-top:8px}
+
+/* Video Player Area */
+.player-wrap{background:#000;border-radius:16px;overflow:hidden;border:1px solid var(--border-color);margin-bottom:24px}
+.player-area{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;position:relative;background:linear-gradient(135deg,#0a0a0f,#111118)}
+.player-area .big-play{width:72px;height:72px;background:rgba(139,92,246,0.3);border:2px solid rgba(139,92,246,0.5);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;backdrop-filter:blur(10px)}
+.player-area .big-play:hover{background:rgba(139,92,246,0.5);transform:scale(1.05)}
+.player-area .big-play svg{width:32px;height:32px;color:#fff;margin-left:4px}
+.player-controls{padding:12px 16px;background:var(--bg-secondary);display:flex;align-items:center;gap:12px}
+.progress-bar{flex:1;height:4px;background:var(--progress-bg);border-radius:2px;position:relative;overflow:hidden}
+.progress-bar .fill{width:35%;height:100%;background:var(--progress-fill);border-radius:2px}
+.ctrl-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);background:transparent;border:none;cursor:pointer;border-radius:6px;transition:all .15s}
+.ctrl-btn:hover{color:var(--text-primary);background:var(--bg-glass)}
+.ctrl-btn svg{width:18px;height:18px}
+.time-label{font-family:'Space Mono',monospace;font-size:12px;color:var(--text-muted);min-width:90px}
+
+/* Interaction Buttons */
+.interaction-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+.interact-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;border:1px solid var(--border-color);background:transparent;color:var(--text-secondary);font-family:'Sora',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s}
+.interact-btn:hover{border-color:rgba(255,255,255,0.15);color:var(--text-primary)}
+[data-theme="light"] .interact-btn:hover{border-color:rgba(0,0,0,0.15);color:var(--text-primary)}
+.interact-btn:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.interact-btn svg{width:18px;height:18px}
+.interact-btn.liked{color:var(--like-active);border-color:rgba(236,72,153,0.3)}
+[data-theme="light"] .interact-btn.liked{color:var(--like-active);border-color:rgba(219,39,119,0.3)}
+.interact-btn.favorited{color:var(--fav-active);border-color:rgba(139,92,246,0.3)}
+[data-theme="light"] .interact-btn.favorited{color:var(--fav-active);border-color:rgba(124,58,237,0.3)}
+
+/* Comment Area */
+.comment-section{background:var(--bg-glass);backdrop-filter:blur(20px);border:1px solid var(--border-color);border-radius:16px;padding:24px}
+.comment-input{display:flex;gap:12px;margin-bottom:24px}
+.comment-input textarea{flex:1;background:var(--bg-glass);border:1px solid var(--border-color);border-radius:8px;padding:12px 16px;color:var(--text-primary);font-family:'Sora',sans-serif;font-size:14px;resize:vertical;min-height:60px;transition:all .2s;outline:none}
+.comment-input textarea:focus{border-color:var(--accent-1);box-shadow:0 0 0 3px rgba(139,92,246,0.2)}
+[data-theme="light"] .comment-input textarea:focus{box-shadow:0 0 0 3px rgba(124,58,237,0.2)}
+.comment-input textarea::placeholder{color:var(--text-muted)}
+.btn-primary{background:linear-gradient(135deg,var(--accent-1),var(--accent-2));color:#fff;box-shadow:0 4px 16px rgba(139,92,246,0.3);padding:10px 24px;border-radius:8px;border:none;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Sora',sans-serif;font-size:14px;align-self:flex-end}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(139,92,246,0.4)}
+.btn-primary:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.comment-item{display:flex;gap:12px;padding:16px 0;border-top:1px solid var(--border-color)}
+.comment-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.comment-avatar svg{width:18px;height:18px;color:#fff}
+.comment-body{flex:1}
+.comment-body .comment-author{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px}
+.comment-body .comment-text{font-size:14px;color:var(--text-secondary);line-height:1.5}
+.comment-body .comment-time{font-size:12px;color:var(--text-muted);margin-top:4px;font-family:'Space Mono',monospace}
+
+/* Upload Area */
+.upload-zone{border:2px dashed var(--drop-border);border-radius:16px;background:var(--bg-glass);backdrop-filter:blur(20px);padding:48px 24px;text-align:center;cursor:pointer;transition:all .3s}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--drop-hover-border);background:var(--drop-hover-bg)}
+.upload-zone:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.upload-zone .upload-icon{width:56px;height:56px;margin:0 auto 16px;color:var(--accent-1);opacity:.7}
+.upload-zone .upload-title{font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:8px}
+.upload-zone .upload-hint{font-size:13px;color:var(--text-muted)}
+.upload-progress{background:var(--bg-glass);backdrop-filter:blur(20px);border:1px solid var(--border-color);border-radius:16px;padding:24px}
+.upload-progress .file-name{font-size:14px;font-weight:500;color:var(--text-primary);margin-bottom:12px}
+.upload-progress .progress-outer{height:8px;background:var(--progress-bg);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.upload-progress .progress-inner{width:67%;height:100%;background:var(--progress-fill);border-radius:4px;transition:width .3s}
+.upload-progress .progress-text{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent-2)}
+.upload-success{display:flex;align-items:center;gap:12px;padding:16px 20px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:12px}
+.upload-success svg{width:24px;height:24px;color:#10b981;flex-shrink:0}
+.upload-error{display:flex;align-items:center;gap:12px;padding:16px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px}
+.upload-error svg{width:24px;height:24px;color:var(--error-color);flex-shrink:0}
+
+/* Empty State */
+.empty-state{text-align:center;padding:48px 24px;background:var(--bg-glass);backdrop-filter:blur(20px);border:1px solid var(--border-color);border-radius:16px}
+.empty-state svg{width:48px;height:48px;color:var(--text-muted);margin-bottom:16px}
+.empty-state .empty-text{font-size:15px;color:var(--text-secondary);margin-bottom:16px}
+
+/* State Row */
+.state-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:16px;background:var(--bg-secondary);border-radius:8px;margin-bottom:12px}
+.state-label{min-width:100px;font-family:'Space Mono',monospace;font-size:13px;color:var(--text-muted)}
+
+/* Theme Badges */
+.theme-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;font-family:'Space Mono',monospace;margin-left:8px;vertical-align:middle}
+.theme-badge-dk{background:#8b5cf6;color:#fff}
+.theme-badge-lt{background:#fbbf24;color:#0f172a}
+
+/* Responsive */
+.responsive-grid{display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}
+@media(max-width:1023px){.responsive-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:639px){.responsive-grid{grid-template-columns:1fr}}
+.viewport-tag{display:inline-block;padding:2px 8px;background:var(--accent-1);color:#fff;font-family:'Space Mono',monospace;font-size:11px;font-weight:600;border-radius:4px;margin-bottom:8px}
+
+/* Checklist */
+.checklist{font-size:14px;line-height:2.2;color:var(--text-secondary);padding-left:24px}
+.checklist li::marker{color:#10b981}
+
+.icon-svg{width:16px;height:16px;flex-shrink:0}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+<div class="container">
+
+<!-- Page Header -->
+<div class="page-header">
+  <div>
+    <h1><span class="gradient">微课模块</span> UI 预览</h1>
+    <p class="subtitle">视频共享 · 双主题预览 · Cyberpunk Glassmorphism</p>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    <span id="themeLabel">亮色模式</span>
+  </button>
+</div>
+
+<!-- 1. Video Card -->
+<h2>1. VideoCard 视频卡片</h2>
+
+<h3>1.1 卡片网格 <span class="theme-badge theme-badge-dk">暗色</span> / <span class="theme-badge theme-badge-lt">亮色</span></h3>
+<div class="video-grid">
+  <!-- Card 1 -->
+  <div class="video-card" tabindex="0" role="link" aria-label="观看 AI 提示工程入门">
+    <div class="video-thumb">
+      <div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+      <span class="duration">12:34</span>
+    </div>
+    <div class="video-info">
+      <div class="title">AI 提示工程入门：从零开始掌握 Prompt Engineering</div>
+      <div class="meta">
+        <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 2.4k</span>
+        <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> 128</span>
+        <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 32</span>
+      </div>
+      <div class="uploader">张三 · 3 天前</div>
+    </div>
+  </div>
+  <!-- Card 2 -->
+  <div class="video-card" tabindex="0" role="link" aria-label="观看 Stable Diffusion 实战">
+    <div class="video-thumb">
+      <div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+      <span class="duration">28:15</span>
+    </div>
+    <div class="video-info">
+      <div class="title">Stable Diffusion 实战：ControlNet 高级技巧</div>
+      <div class="meta">
+        <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 5.1k</span>
+        <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> 256</span>
+        <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 64</span>
+      </div>
+      <div class="uploader">李四 · 1 周前</div>
+    </div>
+  </div>
+  <!-- Card 3 -->
+  <div class="video-card" tabindex="0" role="link" aria-label="观看 LangChain 构建 AI Agent">
+    <div class="video-thumb">
+      <div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+      <span class="duration">45:02</span>
+    </div>
+    <div class="video-info">
+      <div class="title">用 LangChain 构建你的第一个 AI Agent</div>
+      <div class="meta">
+        <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 8.9k</span>
+        <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> 512</span>
+        <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 96</span>
+      </div>
+      <div class="uploader">王五 · 2 周前</div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Video Player + Interactions -->
+<h2>2. VideoPlayer 视频播放详情页</h2>
+
+<div class="player-wrap">
+  <div class="player-area">
+    <div class="big-play" role="button" aria-label="播放视频">
+      <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    </div>
+  </div>
+  <div class="player-controls">
+    <button class="ctrl-btn" aria-label="播放"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+    <div class="progress-bar"><div class="fill"></div></div>
+    <span class="time-label">04:23 / 12:34</span>
+    <button class="ctrl-btn" aria-label="全屏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+  </div>
+</div>
+
+<h3>2.1 互动按钮 <span class="theme-badge theme-badge-dk">暗色</span> / <span class="theme-badge theme-badge-lt">亮色</span></h3>
+<div class="interaction-bar">
+  <button class="interact-btn liked" aria-label="取消点赞">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    128
+  </button>
+  <button class="interact-btn" aria-label="评论">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    32
+  </button>
+  <button class="interact-btn favorited" aria-label="取消收藏">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    收藏
+  </button>
+  <button class="interact-btn" aria-label="分享">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    分享
+  </button>
+</div>
+
+<!-- 3. Comment Section -->
+<h2>3. VideoCommentList 评论区</h2>
+<div class="comment-section">
+  <div class="comment-input">
+    <textarea placeholder="写下你的评论..." aria-label="评论输入"></textarea>
+    <button class="btn-primary">发布</button>
+  </div>
+  <div class="comment-item">
+    <div class="comment-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+    <div class="comment-body">
+      <div class="comment-author">Alice</div>
+      <div class="comment-text">非常棒的教程！讲解清晰，示例代码也很实用。期待后续系列。</div>
+      <div class="comment-time">2 小时前</div>
+    </div>
+  </div>
+  <div class="comment-item">
+    <div class="comment-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+    <div class="comment-body">
+      <div class="comment-author">Bob</div>
+      <div class="comment-text">请问 ControlNet 的预处理步骤可以再详细讲讲吗？</div>
+      <div class="comment-time">5 小时前</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Upload Area -->
+<h2>4. VideoUpload 上传区域</h2>
+
+<h3>4.1 空闲状态（拖拽/点击上传）</h3>
+<div class="upload-zone" tabindex="0" role="button" aria-label="点击或拖拽上传视频">
+  <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+  <div class="upload-title">拖拽视频到此处，或点击选择文件</div>
+  <div class="upload-hint">仅支持 MP4 格式 · 最大 1GB</div>
+</div>
+
+<h3>4.2 上传中状态</h3>
+<div class="upload-progress">
+  <div class="file-name">ai-tutorial-advanced.mp4</div>
+  <div class="progress-outer"><div class="progress-inner"></div></div>
+  <div class="progress-text">67% · 234 MB / 350 MB</div>
+</div>
+
+<h3>4.3 上传成功 & 失败</h3>
+<div style="display:flex;flex-direction:column;gap:12px">
+  <div class="upload-success" role="status">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <span style="font-size:14px;color:var(--text-primary)">上传成功！视频正在处理中...</span>
+  </div>
+  <div class="upload-error" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    <span style="font-size:14px;color:var(--text-primary)">上传失败：文件大小超过 1GB 限制</span>
+  </div>
+</div>
+
+<!-- 5. Empty State -->
+<h2>5. EmptyState 空状态</h2>
+<div class="empty-state">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15.5 2H8.6c-.4 0-.8.2-1.1.5-.3.3-.5.7-.5 1.1v12.8c0 .4.2.8.5 1.1.3.3.7.5 1.1.5h9.8c.4 0 .8-.2 1.1-.5.3-.3.5-.7.5-1.1V6.5L15.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+  <div class="empty-text">暂无视频</div>
+  <button class="btn-primary">上传第一个视频</button>
+</div>
+
+<!-- 6. Responsive -->
+<h2>6. 响应式预览</h2>
+<div class="responsive-grid">
+  <div style="background:var(--bg-secondary);border-radius:12px;padding:20px;text-align:center">
+    <div class="viewport-tag">Desktop ≥1024px</div>
+    <p style="margin-top:8px">3-4 列视频网格<br>宽播放器 + 侧栏信息</p>
+  </div>
+  <div style="background:var(--bg-secondary);border-radius:12px;padding:20px;text-align:center">
+    <div class="viewport-tag">Tablet ≥640px</div>
+    <p style="margin-top:8px">2 列视频网格<br>全宽播放器</p>
+  </div>
+  <div style="background:var(--bg-secondary);border-radius:12px;padding:20px;text-align:center">
+    <div class="viewport-tag">Mobile &lt;640px</div>
+    <p style="margin-top:8px">单列视频列表<br>全宽播放器 + 堆叠布局</p>
+  </div>
+</div>
+
+<!-- 7. Accessibility -->
+<h2>7. 可访问性 (a11y) 检查</h2>
+<ul class="checklist">
+  <li>所有按钮有可读文字标签或 <code>aria-label</code></li>
+  <li>纯图标按钮（点赞、收藏、删除）有 <code>aria-label</code></li>
+  <li>视频播放器区域使用 <code>aria-label="视频播放器"</code></li>
+  <li>暗色焦点环 <code>#00FFFF</code> / 亮色焦点环 <code>#7c3aed</code></li>
+  <li>颜色对比度满足 WCAG AA（所有文字 ≥ 4.5:1）</li>
+  <li>上传错误提示使用 <code>role="alert"</code></li>
+  <li>装饰图标使用 <code>aria-hidden="true"</code></li>
+  <li><code>prefers-reduced-motion: reduce</code> 关闭动画</li>
+</ul>
+
+</div><!-- container -->
+
+<script>
+function toggleTheme(){
+  const html=document.documentElement;
+  const isDark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',isDark?'light':'dark');
+  document.getElementById('themeLabel').textContent=isDark?'暗色模式':'亮色模式';
+}
+</script>
+</body>
+</html>

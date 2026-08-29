@@ -1,0 +1,8 @@
+{
+  "name": "dev-workflow-pack",
+  "version": "1.0.0",
+  "description": "开发工作流全家桶：Matt Pocock 工程技能集（7 项）+ OpenSpec 全流程工作流技能（13 项）+ ui-ux-pro-max 设计技能 + CodeWiki-Plus 完整源码（MCP 服务器，相对路径配置）+ CodingHub 项目 openspec 规范目录。",
+  "icon": "",
+  "source": "mambo-wang/CodingHub",
+  "strict": false
+}

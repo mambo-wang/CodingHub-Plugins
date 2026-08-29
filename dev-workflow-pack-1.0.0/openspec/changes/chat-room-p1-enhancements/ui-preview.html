@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chat Room P1 增强 — UI 预览</title>
+<style>
+  :root {
+    --bg-primary: #09090b; --bg-secondary: #0f0f12; --bg-card: rgba(15,15,20,0.7);
+    --bg-glass: rgba(255,255,255,0.03); --accent-1: #8b5cf6; --accent-2: #06b6d4; --accent-3: #ec4899;
+    --text-primary: #fafafa; --text-secondary: #a1a1aa; --text-muted: #52525b;
+    --border-color: rgba(255,255,255,0.08); --border-glow: rgba(139,92,246,0.3); --focus-ring: #00FFFF;
+    --radius-sm: 8px; --radius-md: 16px;
+  }
+  [data-theme="light"] {
+    --bg-primary: #f8fafc; --bg-secondary: #f1f5f9; --bg-card: rgba(255,255,255,0.9);
+    --bg-glass: rgba(255,255,255,0.8); --accent-1: #7c3aed; --accent-2: #0891b2; --accent-3: #db2777;
+    --text-primary: #0f172a; --text-secondary: #475569; --text-muted: #94a3b8;
+    --border-color: rgba(0,0,0,0.08); --border-glow: rgba(124,58,237,0.3); --focus-ring: #7c3aed;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background: var(--bg-primary); color: var(--text-primary); font-family: 'Sora', system-ui, sans-serif; transition: background .4s, color .4s; }
+  .grid-overlay { position:fixed; inset:0; pointer-events:none;
+    background-image: linear-gradient(var(--border-color) 1px, transparent 1px), linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+    background-size: 60px 60px; opacity:.4; }
+  .container { max-width: 920px; margin: 0 auto; padding: 32px 20px 80px; position: relative; z-index:1; }
+  .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 28px; }
+  .page-header h1 { font-size: 24px; margin:0;
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .theme-toggle { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);
+    border-radius: var(--radius-sm); padding: 8px 14px; cursor: pointer; font-family: 'Space Mono', monospace; }
+  .theme-toggle:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+  h2 { font-size: 18px; margin: 36px 0 12px; color: var(--text-primary); }
+  h3 { font-size: 14px; color: var(--text-secondary); margin: 16px 0 8px; }
+  .theme-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-family: 'Space Mono', monospace; }
+  .theme-badge-dk { background: rgba(139,92,246,.2); color: var(--accent-1); }
+  .theme-badge-lt { background: rgba(124,58,237,.18); color: var(--accent-1); }
+
+  /* Chat card */
+  .chat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md);
+    padding: 18px; backdrop-filter: blur(8px); }
+  .msg { display:flex; gap:10px; margin: 14px 0; }
+  .avatar { width:36px; height:36px; border-radius:50%; background: linear-gradient(135deg, var(--accent-1), var(--accent-2)); flex:0 0 36px; }
+  .bubble { background: var(--bg-secondary); border:1px solid var(--border-color); border-radius: var(--radius-sm);
+    padding: 10px 12px; max-width: 80%; }
+  .name { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .content { font-size: 14px; line-height: 1.5; }
+  .edited { font-size: 11px; color: var(--text-muted); margin-left: 6px; }
+  .recalled { color: var(--text-muted); font-style: italic; }
+
+  /* Reply quote */
+  .reply-quote { border-left: 3px solid var(--accent-2); background: var(--bg-glass); border-radius: 6px;
+    padding: 6px 10px; margin-bottom: 6px; font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+  .reply-quote.deleted { opacity:.6; cursor: default; }
+
+  /* Reactions */
+  .reactions { display:flex; gap:6px; margin-top:8px; flex-wrap: wrap; }
+  .reaction { display:inline-flex; align-items:center; gap:4px; background: rgba(255,255,255,0.05);
+    border:1px solid var(--border-color); border-radius: 999px; padding: 2px 8px; font-size: 12px; color: var(--text-secondary); cursor:pointer; transition: .2s; }
+  [data-theme="light"] .reaction { background: rgba(15,23,42,0.04); }
+  .reaction:hover { border-color: var(--border-glow); }
+  .reaction.active { background: rgba(139,92,246,0.18); color: var(--accent-1); border-color: var(--border-glow); }
+
+  /* Code block */
+  pre.code { background: var(--bg-primary); border:1px solid var(--border-color); border-radius: var(--radius-sm);
+    padding: 10px 12px; font-family: 'Space Mono', monospace; font-size: 12px; overflow-x:auto; position: relative; }
+  .copy-btn { position:absolute; top:6px; right:6px; background: var(--bg-card); border:1px solid var(--border-color);
+    color: var(--text-secondary); border-radius:6px; padding:2px 6px; cursor:pointer; font-size:11px; }
+  .copy-btn:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+  /* Typing */
+  .typing { display:flex; align-items:center; gap:8px; color: var(--text-muted); font-size: 12px; margin-top: 6px; }
+  .dots span { display:inline-block; width:5px; height:5px; border-radius:50%; background: var(--text-muted); margin:0 1px; animation: blink 1.2s infinite; }
+  .dots span:nth-child(2){ animation-delay:.2s; } .dots span:nth-child(3){ animation-delay:.4s; }
+  @keyframes blink { 0%,80%,100%{ opacity:.2; } 40%{ opacity:1; } }
+  @media (prefers-reduced-motion: reduce){ .dots span{ animation:none; } }
+
+  /* Actions menu */
+  .actions { display:flex; gap:4px; margin-top:6px; }
+  .actions button { background: var(--bg-card); border:1px solid var(--border-color); color: var(--text-secondary);
+    border-radius:6px; padding:3px 8px; cursor:pointer; font-size:11px; }
+  .actions button:hover { border-color: var(--border-glow); color: var(--text-primary); }
+  .actions button:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+  .actions button:disabled { opacity:.4; cursor:not-allowed; }
+
+  .responsive-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-top:10px; }
+  .responsive-grid > div { background: var(--bg-secondary); border:1px solid var(--border-color); border-radius: var(--radius-sm); padding:10px; font-size:11px; color: var(--text-muted); text-align:center; }
+  ul.checklist { font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
+</style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+<div class="container">
+  <div class="page-header">
+    <h1>聊天室 P1 增强 · 视觉预览</h1>
+    <button class="theme-toggle" onclick="toggleTheme()">切换主题</button>
+  </div>
+
+  <h2>1. 消息气泡 + Markdown + 引用 + 表情 + 操作</h2>
+
+  <h3>1.1 暗色主题 <span class="theme-badge theme-badge-dk">dark</span></h3>
+  <div class="chat-card">
+    <div class="msg">
+      <div class="avatar"></div>
+      <div class="bubble">
+        <div class="reply-quote"><b>@小明</b>：刚才的部署脚本跑通了吗？</div>
+        <div class="name">CodingHub 用户</div>
+        <div class="content">
+          跑通了！核心代码：
+          <pre class="code"><button class="copy-btn" onclick="alert('已复制')" aria-label="复制代码">复制</button><code>pg_ctl -D D:\pgdata start</code></pre>
+          <b>注意</b> 先确认端口。
+        </div>
+        <div class="reactions">
+          <span class="reaction active">👍 3</span>
+          <span class="reaction">🎉 1</span>
+          <span class="reaction">🚀 2</span>
+        </div>
+        <div class="actions">
+          <button>回复</button><button>表情</button><button>编辑</button><button>撤回</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="msg">
+      <div class="avatar"></div>
+      <div class="bubble">
+        <div class="reply-quote deleted">原消息已删除</div>
+        <div class="name">小明</div>
+        <div class="content">已确认，谢谢！<span class="edited">（已编辑）</span></div>
+      </div>
+    </div>
+
+    <div class="msg">
+      <div class="avatar"></div>
+      <div class="bubble">
+        <div class="name">游客</div>
+        <div class="content recalled">该消息已被撤回</div>
+      </div>
+    </div>
+
+    <div class="typing"><span class="dots"><span></span><span></span><span></span></span> 小明 正在输入…</div>
+  </div>
+
+  <h3>1.2 亮色主题 <span class="theme-badge theme-badge-lt">light</span></h3>
+  <div class="chat-card" data-theme="light" style="--bg-card:rgba(255,255,255,0.9);">
+    <div class="msg">
+      <div class="avatar"></div>
+      <div class="bubble">
+        <div class="name">CodingHub 用户</div>
+        <div class="content">亮色下表情高亮也很清晰 👍</div>
+        <div class="reactions">
+          <span class="reaction active">👍 5</span>
+          <span class="reaction">❤️ 2</span>
+        </div>
+      </div>
+    </div>
+    <div class="typing"><span class="dots"><span></span><span></span><span></span></span> 小红 正在输入…</div>
+  </div>
+
+  <h2>2. 响应式预览</h2>
+  <div class="responsive-grid">
+    <div>Desktop ≥1024px<br/>完整布局，操作菜单 hover 显示</div>
+    <div>Tablet ≥640px<br/>引用内联，表情面板弹出</div>
+    <div>Mobile &lt;640px<br/>长按气泡弹菜单，表情半屏抽屉</div>
+  </div>
+
+  <h2>3. 可访问性 (a11y) 检查</h2>
+  <ul class="checklist">
+    <li>✅ 操作按钮均有 aria-label（表情/编辑/撤回/回复/复制代码）</li>
+    <li>✅ 焦点环暗色 #00FFFF / 亮色 #7c3aed，offset 2px</li>
+    <li>✅ prefers-reduced-motion 关闭 typing 动画</li>
+    <li>✅ 代码复制按钮 aria-label="复制代码"</li>
+    <li>✅ 禁止 v-html 渲染未净化内容（DOMPurify 兜底）</li>
+  </ul>
+</div>
+
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  }
+</script>
+</body>
+</html>

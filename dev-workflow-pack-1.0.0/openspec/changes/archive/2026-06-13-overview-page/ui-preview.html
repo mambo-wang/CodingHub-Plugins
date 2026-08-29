@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>概览 - CodingHub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --color-bg: #020617;
+      --color-surface: rgba(15, 23, 42, 0.9);
+      --color-text: #F8FAFC;
+      --color-muted: #94A3B8;
+      --color-cyan: #00FFFF;
+      --color-magenta: #FF00FF;
+      --color-green: #22C55E;
+      --color-yellow: #FBBF24;
+      --color-purple: #A855F7;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Fira Sans', sans-serif; background: var(--color-bg); color: var(--color-text); min-height: 100vh; }
+    body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,255,0.02) 2px, rgba(0,255,255,0.02) 4px); pointer-events: none; z-index: 1000; }
+    .font-code { font-family: 'Fira Code', monospace; }
+    .glass-card { background: var(--color-surface); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; transition: all 200ms ease; }
+    .glass-card:hover { border-color: rgba(0,255,255,0.3); box-shadow: 0 0 30px rgba(0,255,255,0.15); }
+    .text-glow-cyan { text-shadow: 0 0 10px rgba(0,255,255,0.5), 0 0 20px rgba(0,255,255,0.3); }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .skeleton { background: linear-gradient(90deg, #1E293B 25%, #0F172A 50%, #1E293B 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
+    .tab-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1.5px solid #1E293B; border-radius: 20px; background: var(--color-surface); color: var(--color-muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
+    .tab-btn:hover { border-color: var(--color-cyan); color: var(--color-cyan); }
+    .tab-btn.active { background: linear-gradient(135deg, var(--color-cyan), var(--color-magenta)); border-color: transparent; color: #0F172A; font-weight: 600; }
+    .rank-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; transition: all 150ms ease; cursor: pointer; }
+    .rank-item:hover { background: #1E293B; }
+    .rank-badge { min-width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--color-cyan), var(--color-magenta)); color: #0F172A; font-family: 'Fira Code', monospace; font-size: 11px; font-weight: 700; border-radius: 6px; }
+    .stats-card { position: relative; overflow: hidden; }
+    .stats-card::before { content: ''; position: absolute; inset: -100%; background: radial-gradient(circle, rgba(0,255,255,0.08) 0%, transparent 50%); opacity: 0; transition: opacity 400ms ease; pointer-events: none; }
+    .stats-card:hover::before { opacity: 1; }
+    .deerflow-badge { position: fixed; bottom: 20px; right: 20px; display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: rgba(15,23,42,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; font-size: 12px; color: var(--color-muted); text-decoration: none; transition: all 200ms ease; z-index: 999; }
+    .deerflow-badge:hover { color: var(--color-cyan); border-color: var(--color-cyan); }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: fadeInUp 0.5s ease forwards; }
+    .delay-1 { animation-delay: 0.1s; opacity: 0; }
+    .delay-2 { animation-delay: 0.2s; opacity: 0; }
+    .delay-3 { animation-delay: 0.3s; opacity: 0; }
+  </style>
+</head>
+<body>
+  <div class="min-h-screen p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+    <!-- Header -->
+    <header class="mb-6 animate-in">
+      <h1 class="font-code text-xl md:text-2xl font-bold text-glow-cyan" style="color: var(--color-cyan);">数据概览</h1>
+      <p class="text-sm mt-1" style="color: var(--color-muted);">Platform Overview</p>
+    </header>
+
+    <!-- Stats Cards -->
+    <section class="grid grid-cols-3 gap-3 mb-6">
+      <div class="stats-card glass-card p-4 animate-in delay-1">
+        <div class="flex items-center gap-3">
+          <div class="p-2 rounded-lg" style="background: rgba(0,255,255,0.1); border: 1px solid rgba(0,255,255,0.2);">
+            <i data-lucide="users" class="w-5 h-5" style="color: var(--color-cyan);"></i>
+          </div>
+          <div>
+            <p class="text-xs" style="color: var(--color-muted);">用户</p>
+            <p class="font-code text-2xl font-bold">1,234</p>
+          </div>
+        </div>
+      </div>
+      <div class="stats-card glass-card p-4 animate-in delay-2">
+        <div class="flex items-center gap-3">
+          <div class="p-2 rounded-lg" style="background: rgba(255,0,255,0.1); border: 1px solid rgba(255,0,255,0.2);">
+            <i data-lucide="message-square" class="w-5 h-5" style="color: var(--color-magenta);"></i>
+          </div>
+          <div>
+            <p class="text-xs" style="color: var(--color-muted);">帖子</p>
+            <p class="font-code text-2xl font-bold">5,678</p>
+          </div>
+        </div>
+      </div>
+      <div class="stats-card glass-card p-4 animate-in delay-3">
+        <div class="flex items-center gap-3">
+          <div class="p-2 rounded-lg" style="background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2);">
+            <i data-lucide="wrench" class="w-5 h-5" style="color: var(--color-green);"></i>
+          </div>
+          <div>
+            <p class="text-xs" style="color: var(--color-muted);">工具</p>
+            <p class="font-code text-2xl font-bold">89</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content: 工具热榜 + 帖子热榜 并排 -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-in delay-2">
+      <!-- 工具热榜 -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="flame" class="w-4 h-4" style="color: var(--color-cyan);"></i>
+          <h2 class="font-code text-base font-semibold">工具热榜</h2>
+        </div>
+        <div class="flex gap-2 flex-wrap mb-0">
+          <button class="tab-btn active" onclick="switchTab(this, 'tool', 0)">全部</button>
+          <button class="tab-btn" onclick="switchTab(this, 'tool', 1)">AI对话</button>
+          <button class="tab-btn" onclick="switchTab(this, 'tool', 2)">图像</button>
+          <button class="tab-btn" onclick="switchTab(this, 'tool', 3)">代码</button>
+          <button class="tab-btn" onclick="switchTab(this, 'tool', 4)">视频</button>
+          <button class="tab-btn" onclick="switchTab(this, 'tool', 5)">音频</button>
+        </div>
+        <div class="glass-card mt-0 p-3 rounded-t-none" style="border-top-left-radius: 0; border-top-right-radius: 0;">
+          <div class="space-y-1" id="tool-list">
+            <div class="rank-item"><span class="rank-badge">1</span><span class="flex-1 text-sm truncate">ChatGPT</span><span class="text-xs font-code" style="color: var(--color-muted);">999</span></div>
+            <div class="rank-item"><span class="rank-badge">2</span><span class="flex-1 text-sm truncate">Claude</span><span class="text-xs font-code" style="color: var(--color-muted);">888</span></div>
+            <div class="rank-item"><span class="rank-badge">3</span><span class="flex-1 text-sm truncate">Gemini</span><span class="text-xs font-code" style="color: var(--color-muted);">777</span></div>
+            <div class="rank-item"><span class="rank-badge">4</span><span class="flex-1 text-sm truncate">文心一言</span><span class="text-xs font-code" style="color: var(--color-muted);">666</span></div>
+            <div class="rank-item"><span class="rank-badge">5</span><span class="flex-1 text-sm truncate">通义千问</span><span class="text-xs font-code" style="color: var(--color-muted);">555</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 帖子热榜 -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="message-circle" class="w-4 h-4" style="color: var(--color-magenta);"></i>
+          <h2 class="font-code text-base font-semibold">帖子热榜</h2>
+        </div>
+        <div class="flex gap-2 flex-wrap mb-0">
+          <button class="tab-btn active" onclick="switchTab(this, 'post', 0)">全部</button>
+          <button class="tab-btn" onclick="switchTab(this, 'post', 1)">讨论</button>
+          <button class="tab-btn" onclick="switchTab(this, 'post', 2)">问答</button>
+          <button class="tab-btn" onclick="switchTab(this, 'post', 3)">作品</button>
+          <button class="tab-btn" onclick="switchTab(this, 'post', 4)">资源</button>
+        </div>
+        <div class="glass-card mt-0 p-3 rounded-t-none" style="border-top-left-radius: 0; border-top-right-radius: 0;">
+          <div class="space-y-1" id="post-list">
+            <div class="rank-item"><span class="rank-badge">1</span><span class="flex-1 text-sm truncate">AI时代产品经理该何去何从</span><span class="text-xs font-code" style="color: var(--color-muted);">50</span></div>
+            <div class="rank-item"><span class="rank-badge">2</span><span class="flex-1 text-sm truncate">分享我用AI工具提效300%方法</span><span class="text-xs font-code" style="color: var(--color-muted);">42</span></div>
+            <div class="rank-item"><span class="rank-badge">3</span><span class="flex-1 text-sm truncate">深度测评：Claude vs GPT-4</span><span class="text-xs font-code" style="color: var(--color-muted);">38</span></div>
+            <div class="rank-item"><span class="rank-badge">4</span><span class="flex-1 text-sm truncate">如何用AI工具做副业月入过万</span><span class="text-xs font-code" style="color: var(--color-muted);">35</span></div>
+            <div class="rank-item"><span class="rank-badge">5</span><span class="flex-1 text-sm truncate">AIGC创业者的第一年复盘</span><span class="text-xs font-code" style="color: var(--color-muted);">30</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 底部留白避免遮挡 -->
+    <div class="h-8"></div>
+  </div>
+
+  <!-- Deerflow Branding -->
+  <a href="https://deerflow.tech" target="_blank" class="deerflow-badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    <span>Created By Deerflow</span>
+  </a>
+
+  <script>
+    lucide.createIcons();
+    function switchTab(btn, type, index) {
+      btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // 在实际实现中，这里会根据 index 加载对应类别的数据
+    }
+  </script>
+</body>
+</html>

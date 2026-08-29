@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "codewiki": {
+      "command": "D:\\PersonalData\\wangbao\\codewiki-plus\\.venv\\Scripts\\python.exe",
+      "args": [
+        "-m",
+        "codewiki.mcp.server"
+      ],
+      "disabled": false
+    }
+  }
+}
