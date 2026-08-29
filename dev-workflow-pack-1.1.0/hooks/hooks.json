@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CODEBUDDY_PLUGIN_ROOT}/hooks/task_session_start.py\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "other",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CODEBUDDY_PLUGIN_ROOT}/hooks/capture_session_end.py\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
