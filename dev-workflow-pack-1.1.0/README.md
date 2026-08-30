@@ -6,8 +6,9 @@
 
 | 组件 | 位置 | 说明 |
 |------|------|------|
-| Matt Pocock 工程技能集 | `skills/`（7 项） | grill-me、write-a-skill、improve-codebase-architecture 等 |
-| OpenSpec 工作流技能 | `skills/`（13 项） | openspec-new-change / propose / apply / verify / archive 全流程 |
+| Matt Pocock 工程技能集 | `skills/`（25 项） | grill-me、tdd、code-review、codebase-design、to-spec/to-tickets、wayfinder 等（上游 mattpocock/skills v1.2.3 官方插件全集） |
+| Superpowers 核心技能库 | `skills/`（14 项） | test-driven-development、systematic-debugging、writing-plans/executing-plans、requesting/receiving-code-review、using-git-worktrees 等（上游 obra/superpowers v6.3.0） |
+| OpenSpec 工作流技能 | `skills/`（14 项） | openspec-new-change / propose / apply / verify / archive / update-change 全流程（12 项来自 OpenSpec v1.11.0）+ openspec-write-plan / executing-plans（来自 dyx/openspec-superpowers v1.0.1） |
 | UI/UX 设计技能 | `skills/ui-ux-pro-max/` | 可搜索设计知识库 |
 | CodingHub 平台操作技能 | `skills/codinghub/` | 工具广场/插件市场/论坛/知识库操作，MCP 优先 + chub CLI（Python/Node 双实现）降级 |
 | 蒸馏代理 | `agents/distill-worker.md` | CodeWiki 补蒸馏 subagent（配合 codewiki MCP） |
@@ -52,6 +53,15 @@ init_workspace(layout="colocated")    # 或 "centralized"
 > `init_wiki` 注入的约定与 `references/codewiki-agents-template.md` 内容对应——正常情况无需手工拷贝模板，它留作参考或无法自动注入时的备用。
 >
 > 项目有了 `repowiki/` 之后，本插件随附的会话钩子即自动生效（见下节）。
+
+## 更新记录（2026-08-30）
+
+技能库对齐上游最新版：
+
+- **OpenSpec**（Fission-AI/OpenSpec v1.11.0）：11 个 openspec-* 技能由 CLI 1.4.1 生成版整体更新，新增 `openspec-update-change`。
+- **Superpowers**（obra/superpowers v6.3.0）：新引入全部 14 个核心技能（TDD、systematic-debugging、writing-plans / executing-plans、requesting / receiving-code-review、subagent-driven-development、using-git-worktrees 等）。
+- **Matt Pocock 技能集**（mattpocock/skills v1.2.3）：按官方插件清单纯化——移除上游已删除的 design-an-interface（并入 codebase-design）、write-a-skill（由 writing-for-agents 取代）、research-ts-decisions（由 research 取代）、document-ai-hero-api，全量同步官方 25 个技能。
+- **openspec-superpowers**（dyx/openspec-superpowers v1.0.1）：与包内版本一致，无变化。
 
 ## 在新项目初始化 openspec
 

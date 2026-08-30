@@ -1,7 +1,7 @@
 {
   "name": "dev-workflow-pack",
   "version": "1.1.0",
-  "description": "开发工作流全家桶：Matt Pocock 工程技能集（7 项）+ OpenSpec 全流程工作流技能（13 项）+ ui-ux-pro-max 设计技能 + codinghub 平台操作技能（工具广场/插件市场/论坛/知识库）+ CodeWiki 团队记忆组件（distill-worker 蒸馏代理、会话钩子、AGENTS.md 约定模板）+ CodingHub 项目 openspec 规范目录。CodeWiki MCP 服务器需自行安装。",
+  "description": "开发工作流全家桶：Matt Pocock 工程技能集（25 项，v1.2.3）+ Superpowers 核心技能库（14 项，v6.3.0）+ OpenSpec 全流程工作流技能（14 项：官方 v1.11.0 12 项 + openspec-superpowers 执行/写计划 2 项）+ ui-ux-pro-max 设计技能 + codinghub 平台操作技能（工具广场/插件市场/论坛/知识库）+ CodeWiki 团队记忆组件（distill-worker 蒸馏代理、会话钩子、AGENTS.md 约定模板）+ CodingHub 项目 openspec 规范目录。CodeWiki MCP 服务器需自行安装。",
   "icon": "",
   "source": "mambo-wang/CodingHub",
   "strict": false
