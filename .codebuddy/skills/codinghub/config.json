@@ -4,8 +4,8 @@
   "frontendPort": "80",
   "username": "wangbao",
   "password": "123456",
-  "accessToken": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJ3YW5nYmFvIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4ODA1MzEyMiwiZXhwIjoxNzg4MDU0MDIyfQ._gpp22WR6Zs4ydQbz_-oFzgTNRUFjDYc-VHwPIsdYRA-aBOapZYjF5DWPwdqVBc_",
+  "accessToken": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJ3YW5nYmFvIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4ODA2NTM4MCwiZXhwIjoxNzg4MDY2MjgwfQ.pAicOm3TpOp3dAwK8a5UDHXQoNubekK1tOPu5BuLCFr05zaKdleDa46gRjuswo0S",
   "refreshToken": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJ3YW5nYmFvIiwidHlwZSI6InJlZnJlc2giLCJpYXQiOjE3ODgwNTMxMjIsImV4cCI6MTc4ODY1NzkyMn0.hWr7EmikgpvJZbHDKow2fBFbgayH92Tu-mH5vBMQcRbWW9TSx3t_1XnjIH2ZJA7J",
-  "accessTokenExpiry": "2026-08-30T01:40:22.506308+00:00",
+  "accessTokenExpiry": "2026-08-30T05:04:40.901244+00:00",
   "baseUrl": "http://127.0.0.1:8082"
 }
