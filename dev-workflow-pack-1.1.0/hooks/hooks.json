@@ -8,6 +8,11 @@
             "type": "command",
             "command": "python \"${CODEBUDDY_PLUGIN_ROOT}/hooks/task_session_start.py\"",
             "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "python \"${CODEBUDDY_PLUGIN_ROOT}/hooks/init_openspec_hint.py\"",
+            "timeout": 10
           }
         ]
       }

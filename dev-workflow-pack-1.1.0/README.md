@@ -53,6 +53,21 @@ init_workspace(layout="colocated")    # 或 "centralized"
 >
 > 项目有了 `repowiki/` 之后，本插件随附的会话钩子即自动生效（见下节）。
 
+## 在新项目初始化 openspec
+
+插件随包分发了 `openspec/` 规范目录（`config.yaml`、`specs/`、`schemas/`、`changes/`）。CodeBuddy 的插件组件（技能/命令）都是从插件安装目录直接加载的，**没有**"安装后自动把文件放进项目根目录"的内建机制——`openspec/` 需要在目标项目中显式初始化，方式任选：
+
+- **命令**：会话中运行 `/init-openspec`（agent 会调用 `scripts/init_openspec.py` 完成复制）。
+- **脚本**：手动执行 `python "<插件目录>/scripts/init_openspec.py"`，默认复制到当前项目根目录。
+
+行为：
+
+- **幂等**：目标项目已有 `openspec/` 时直接跳过，不覆盖任何文件；需合并覆盖同名文件时加 `--force`。
+- **会话提示**：`hooks/init_openspec_hint.py`（SessionStart）检测到项目缺 `openspec/` 时，会提示 agent 询问用户是否初始化——只提示、不自动复制，且仅对 git 仓库生效。
+- **注意**：`openspec/config.yaml` 含来源项目（CodingHub）的技术栈信息与配置，初始化到新项目后请按实际修改；如含敏感凭据，发布插件前应清理。
+
+> 与 repowiki 一样，`openspec/` 也遵循"按需初始化"：不强制、不打扰未使用 OpenSpec 工作流的项目。
+
 ## codinghub skill 首次配置
 
 技能目录内只带 `config.json.example`。首次使用时复制为 `config.json` 并填写你的 CodingHub 实例地址与账号：
