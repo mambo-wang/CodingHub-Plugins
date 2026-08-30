@@ -1,6 +1,2 @@
 schema: sdd-with-ui-design-unittest-wiki
-context: |
-  Project: CodingHub
-  Tech Stack: Java 17, Spring Boot 3.2.5, Gradle, Vue 3.4.21, TypeScript, Vite
-  Middleware: MySQL 8.x (用户: root, 密码: root, 数据库: ai_tool_square)
-  Ports: Backend 8082, Frontend 5173
+context: 项目介绍
