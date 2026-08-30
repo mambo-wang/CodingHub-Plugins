@@ -9,6 +9,7 @@
 | Matt Pocock 工程技能集 | `skills/`（25 项） | grill-me、tdd、code-review、codebase-design、to-spec/to-tickets、wayfinder 等（上游 mattpocock/skills v1.2.3 官方插件全集） |
 | Superpowers 核心技能库 | `skills/`（14 项） | test-driven-development、systematic-debugging、writing-plans/executing-plans、requesting/receiving-code-review、using-git-worktrees 等（上游 obra/superpowers v6.3.0） |
 | OpenSpec 工作流技能 | `skills/`（14 项） | openspec-new-change / propose / apply / verify / archive / update-change 全流程（12 项来自 OpenSpec v1.11.0）+ openspec-write-plan / executing-plans（来自 dyx/openspec-superpowers v1.0.1） |
+| OpenSpec OPSX 命令 | `commands/opsx/`（11 项） | `/opsx:propose` / `new` / `continue` / `explore` / `apply` / `update` / `verify` / `sync` / `archive` / `write-plan` / `executing-plans`，与上述技能同源的斜杠命令入口（OpenSpec CLI CodeBuddy 适配器生成，含 `/init-openspec` 共 12 个命令） |
 | UI/UX 设计技能 | `skills/ui-ux-pro-max/` | 可搜索设计知识库 |
 | CodingHub 平台操作技能 | `skills/codinghub/` | 工具广场/插件市场/论坛/知识库操作，MCP 优先 + chub CLI（Python/Node 双实现）降级 |
 | 蒸馏代理 | `agents/distill-worker.md` | CodeWiki 补蒸馏 subagent（配合 codewiki MCP） |
