@@ -1,0 +1,49 @@
+{
+  "description": "ponytail-caveman-pack：SessionStart 注入 ponytail/caveman 规则集；UserPromptSubmit 跟踪模式切换（/ponytail、/caveman、自然语言触发词）；SubagentStart 为子代理注入 ponytail 规则。统一经 hooks/codebuddy-hook.js 适配上游 Claude Code 钩子脚本。",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CODEBUDDY_PLUGIN_ROOT}/hooks/codebuddy-hook.js\" SessionStart ponytail/ponytail-activate.js",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "node \"${CODEBUDDY_PLUGIN_ROOT}/hooks/codebuddy-hook.js\" SessionStart caveman/caveman-activate.js",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CODEBUDDY_PLUGIN_ROOT}/hooks/codebuddy-hook.js\" UserPromptSubmit ponytail/ponytail-mode-tracker.js",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"${CODEBUDDY_PLUGIN_ROOT}/hooks/codebuddy-hook.js\" UserPromptSubmit caveman/caveman-mode-tracker.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CODEBUDDY_PLUGIN_ROOT}/hooks/codebuddy-hook.js\" SubagentStart ponytail/ponytail-subagent.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

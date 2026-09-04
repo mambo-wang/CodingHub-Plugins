@@ -1,0 +1,8 @@
+{
+  "name": "ponytail-caveman-pack",
+  "version": "1.0.0",
+  "description": "极简代码与极简沟通双引擎插件：ponytail（懒人最小实现 / YAGNI 驱动，含 audit/debt/gain/help/review 技能与全套 SessionStart/UserPromptSubmit/SubagentStart 钩子）+ caveman（穴居人极简沟通模式，lite/full/ultra 与 wenyan 文言档位、cavecrew 压缩输出代理、commit/review/compress/stats 等一族技能与钩子）。安装即通过钩子注入规则，两条技能全家桶随取随用。",
+  "icon": "",
+  "source": "DietrichGebert/ponytail + JuliusBrussee/caveman",
+  "strict": false
+}
