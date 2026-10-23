@@ -1,0 +1,8 @@
+{
+  "name": "tech-article-write-pack",
+  "version": "1.0.0",
+  "description": "技术文章写作技能包：编排 tool-review-writer 调度 doc-coauthoring、diagram-design、scientific-humanization、humanizer-zh 四个技能，覆盖开源工具评测长文、文档共创、架构图绘制、科研文本人化、中文去模板腔全流程。",
+  "icon": "",
+  "source": "",
+  "strict": false
+}
