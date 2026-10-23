@@ -2,12 +2,13 @@
 """Validate marketplace.json against actual plugin directories.
 
 Checks:
-1. Every index entry's path exists and is a directory.
+1. Every index entry's source path exists and is a directory.
 2. Each path has .codebuddy-plugin/plugin.json (client manifest).
 3. Manifest name/version match the index entry.
 4. name is kebab-case, version is semver.
 5. No commands/skills fields declared in manifests.
 6. Every top-level dir with plugin.json is listed in the index.
+7. Root marketplace.json and .codebuddy-plugin/marketplace.json are identical.
 
 Exit 0 = OK, 1 = validation failure.
 """
@@ -19,6 +20,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INDEX = os.path.join(ROOT, "marketplace.json")
+CLIENT_INDEX = os.path.join(ROOT, ".codebuddy-plugin", "marketplace.json")
 
 KEBAB = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(-[a-zA-Z0-9]+)?$")
@@ -28,20 +30,31 @@ errors = []
 with open(INDEX, encoding="utf-8") as f:
     index = json.load(f)
 
+# check 7: root and client index identical
+if os.path.isfile(CLIENT_INDEX):
+    with open(CLIENT_INDEX, encoding="utf-8") as f:
+        client_index = json.load(f)
+    if client_index != index:
+        errors.append("root marketplace.json != .codebuddy-plugin/marketplace.json")
+else:
+    errors.append("missing .codebuddy-plugin/marketplace.json (client entry point)")
+
 indexed = set()
 for entry in index.get("plugins", []):
     name = entry.get("name", "")
     version = entry.get("version", "")
-    path = entry.get("path", "")
+    source = entry.get("source", "")
 
     if not KEBAB.match(name):
         errors.append(f"{name}: name not kebab-case")
     if not SEMVER.match(version):
         errors.append(f"{name}: version '{version}' not semver")
+    if not source:
+        errors.append(f"{name}: missing 'source' field")
 
-    pdir = os.path.normpath(os.path.join(ROOT, path))
+    pdir = os.path.normpath(os.path.join(ROOT, source))
     if not os.path.isdir(pdir):
-        errors.append(f"{name}: path '{path}' not a directory")
+        errors.append(f"{name}: source '{source}' not a directory")
         continue
     indexed.add(os.path.basename(pdir))
 

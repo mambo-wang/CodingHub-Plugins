@@ -1,27 +1,28 @@
 {
   "name": "mambo-wang-codinghub-plugins",
-  "owner": "mambo-wang",
+  "description": "mambo-wang 的 CodingHub 插件市场",
+  "owner": {
+    "name": "mambo-wang",
+    "email": "iamwangbao@163.com"
+  },
   "plugins": [
     {
       "name": "dev-workflow-pack",
-      "version": "1.1.1",
       "description": "开发工作流全家桶：Matt Pocock 工程技能集（25 项，v1.2.3）+ Superpowers 核心技能库（14 项，v6.3.0）+ OpenSpec 全流程工作流技能（14 项：官方 v1.11.0 12 项 + openspec-superpowers 执行/写计划 2 项）+ OpenSpec /opsx 斜杠命令（11 项）+ ui-ux-pro-max 设计技能 + codinghub 平台操作技能（工具广场/插件市场/论坛/知识库）+ CodeWiki 团队记忆组件（distill-worker 蒸馏代理、会话钩子、AGENTS.md 约定模板）+ CodingHub 项目 openspec 规范目录。CodeWiki MCP 服务器需自行安装。",
-      "path": "./dev-workflow-pack",
-      "strict": false
+      "version": "1.1.1",
+      "source": "./dev-workflow-pack"
     },
     {
       "name": "ponytail-caveman-pack",
-      "version": "1.0.0",
       "description": "极简代码与极简沟通双引擎插件：ponytail（懒人最小实现 / YAGNI 驱动，含 audit/debt/gain/help/review 技能与全套 SessionStart/UserPromptSubmit/SubagentStart 钩子）+ caveman（穴居人极简沟通模式，lite/full/ultra 与 wenyan 文言档位、cavecrew 压缩输出代理、commit/review/compress/stats 等一族技能与钩子）。安装即通过钩子注入规则，两条技能全家桶随取随用。",
-      "path": "./ponytail-caveman-pack",
-      "strict": false
+      "version": "1.0.0",
+      "source": "./ponytail-caveman-pack"
     },
     {
       "name": "tech-article-write-pack",
-      "version": "1.0.0",
       "description": "技术文章写作技能包：编排 tool-review-writer 调度 doc-coauthoring、diagram-design、scientific-humanization、humanizer-zh 四个技能，覆盖开源工具评测长文、文档共创、架构图绘制、科研文本人化、中文去模板腔全流程；另含 wechat-geek-dark-theme 公众号暗色排版主题。",
-      "path": "./tech-article-write-pack",
-      "strict": false
+      "version": "1.0.0",
+      "source": "./tech-article-write-pack"
     }
   ]
 }
