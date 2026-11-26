@@ -16,9 +16,9 @@
 
 | 插件 | 版本 | 说明 |
 |------|------|------|
-| dev-workflow-pack | 1.1.1 | 开发工作流全家桶（工程技能集 + OpenSpec 工作流 + CodeWiki 团队记忆） |
+| dev-workflow-pack | 1.2.0 | 开发工作流全家桶（工程技能集 + OpenSpec 工作流 + CodeWiki 团队记忆） |
 | ponytail-caveman-pack | 1.0.0 | 极简代码与极简沟通双引擎 |
-| tech-article-write-pack | 1.0.0 | 技术文章写作技能包（评测长文 + 架构图 + 文本人化 + 公众号排版） |
+| tech-article-write-pack | 1.1.0 | 技术文章写作技能包（评测长文编排 + 公众号技术长文 + 架构图 + 文本人化 + 公众号排版） |
 
 ## 新增插件约定
 

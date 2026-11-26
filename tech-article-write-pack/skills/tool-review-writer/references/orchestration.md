@@ -12,7 +12,7 @@
 | P4 | 截图 | `screenshot-guide.md` | `shots/*.png` |
 | P5 | 读者测试 | `doc-coauthoring` Stage 3 | 缺口清单 → 回 P2 补 |
 | P6 | 通稿润色 | `humanizer-zh` | 定稿 |
-| P7 | 收口校验 | `lint_article.cjs` | 0 FAIL |
+| P7 | 收口校验 | `lint_article.cjs` | 0 FAIL（发布稿 `--plain --track skip`；公众号腿再跑 `toolchain.md` 发布前清单） |
 
 ## 为什么是这个顺序
 
@@ -24,7 +24,7 @@
 
 ## 三条硬约束
 
-1. **每个数字回台账。** 正文里的数字、耗时、行数、百分比必须能在 `facts.md` 找到同编号的条目，`lint_article.cjs` 会查。
+1. **每个数字回台账。** 正文里的数字、耗时、行数、百分比必须能在 `facts.md` 找到同编号的条目，`lint_article.cjs` 会查。内联 `[E##]` 可选：发布稿省标记时加 `--plain`，台账仍齐全、附录给编号段对照。完整铁律（含行号不进正文、逐 Step 证据、逐键配置、脱敏、推 ima 同意闸）见 `SKILL.md` §2。
 2. **README 的自评只能以"声称"出现。** `strength: author-claim` 的条目被引用时，那句话必须带归因词（声称 / README 说 / 官方文档写 / 标称）。
 3. **失败也是内容。** 装不上、跑崩、超时的原样输出进正文和截图，不删。评测文章里只有成功路径等于没测。
 

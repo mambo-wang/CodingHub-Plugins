@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<link rel="stylesheet" href="fig.css">
+<!-- 配图骨架：480 CSS px 画布（微信手机端 ~343pt 显示，正文 ≥14.5px）。
+     整页只允许 flex，不要 grid；本页专属布局写在这个 style 块里。 -->
+<style>
+  .box { border: 1px solid #d8e0ec; border-radius: 10px; background: #fbfcfe;
+         padding: 10px 13px; }
+  .box .hd { font-size: 16px; font-weight: 700; color: #1a1f2e; }
+  .box .dd { font-size: 14.5px; color: #5a6478; line-height: 1.5; margin-top: 4px; }
+</style></head><body>
+  <div class="cap">图 1</div>
+  <h1>一句话点题：<span>后半句上高亮色</span></h1>
+  <div class="lede">一句副题，说明这张图解决什么问题（可省）。</div>
+
+  <div class="box">
+    <div class="hd">区域标题</div>
+    <div class="dd">说明文字；插件名用 <span class="plug">ai-proxy</span> 上等宽蓝。</div>
+  </div>
+
+  <div class="foot"><b>一句收束</b>，带出结论或数据出处。</div>
+</body></html>

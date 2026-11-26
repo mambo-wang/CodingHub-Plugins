@@ -1,0 +1,29 @@
+%% ── 时序图起手模板（mermaid2png.py 专用）────────────────────
+%% 复制成 imgs/p<NN>-fig<N>-<slug>.mmd，改文案即可；渲染：
+%%   python3 mermaid2png.py p<NN>-fig<N>-<slug>     （在 imgs/ 目录下跑）
+%% 约束（手机可读性硬约束）：参与者 ≤3 列；消息用 <br/> 手动换行、单行 ~18 字内；
+%% 字号/配色统一在 mermaid2png.py 的 MERMAID_INIT 里调，别在 .mmd 里内联样式。
+%% 更复杂的实样（激活条表现「包住」+ rect 区间面板）：01 篇 fig8-request-sequence.mmd。
+%% ────────────────────────────────────────────────────────────
+
+%%cap: 图 N
+%%title: 主标题：<span>蓝色后半句</span>
+%%lede: 一句副题，说明这张图在讲什么。
+%%foot: 底部收束：看图时要记住的一句话。
+
+sequenceDiagram
+  participant A as 调用方
+  participant B as 网关
+  participant C as 上游
+
+  A->>B: 请求（关键参数）
+  activate B
+  rect rgb(255, 248, 238)
+  B->>B: ① 网关内部步骤一
+  B->>B: ② 网关内部步骤二
+  B->>C: 转发
+  C-->>B: 流式返回
+  B->>B: ③ 收尾（统计值到这时才齐）
+  deactivate B
+  end
+  B-->>A: 响应

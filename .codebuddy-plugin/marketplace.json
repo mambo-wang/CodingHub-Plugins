@@ -8,8 +8,8 @@
   "plugins": [
     {
       "name": "dev-workflow-pack",
-      "description": "开发工作流全家桶：Matt Pocock 工程技能集（25 项，v1.2.3）+ Superpowers 核心技能库（14 项，v6.3.0）+ OpenSpec 全流程工作流技能（14 项：官方 v1.11.0 12 项 + openspec-superpowers 执行/写计划 2 项）+ OpenSpec /opsx 斜杠命令（11 项）+ ui-ux-pro-max 设计技能 + codinghub 平台操作技能（工具广场/插件市场/论坛/知识库）+ CodeWiki 团队记忆组件（distill-worker 蒸馏代理、会话钩子、AGENTS.md 约定模板）+ CodingHub 项目 openspec 规范目录。CodeWiki MCP 服务器需自行安装。",
-      "version": "1.1.1",
+      "description": "开发工作流全家桶：Matt Pocock 工程技能集（27 项，v1.3.1）+ Superpowers 核心技能库（15 项，v7.0.1）+ OpenSpec 全流程工作流技能（14 项：官方 v1.15.0 12 项 + openspec-superpowers 执行/写计划 2 项）+ OpenSpec /opsx 斜杠命令（14 项）+ ui-ux-pro-max 设计技能 + codinghub 平台操作技能（工具广场/插件市场/论坛/知识库）+ CodeWiki 团队记忆组件（distill-worker 蒸馏代理、会话钩子、AGENTS.md 约定模板）+ CodingHub 项目 openspec 规范目录。CodeWiki MCP 服务器需自行安装。",
+      "version": "1.2.0",
       "source": "./dev-workflow-pack"
     },
     {
@@ -20,8 +20,8 @@
     },
     {
       "name": "tech-article-write-pack",
-      "description": "技术文章写作技能包：编排 tool-review-writer 调度 doc-coauthoring、diagram-design、scientific-humanization、humanizer-zh 四个技能，覆盖开源工具评测长文、文档共创、架构图绘制、科研文本人化、中文去模板腔全流程；另含 wechat-geek-dark-theme 公众号暗色排版主题。",
-      "version": "1.0.0",
+      "description": "技术文章写作技能包：tool-review-writer 编排 doc-coauthoring、diagram-design、scientific-humanization、humanizer-zh，覆盖评测长文三类骨架（读源码+安装实操 / 拿来即用 MCP·Skill / 公众号四段式）、事实台账、原理图出图、实操截图与微信 HTML；wechat-tech-article 提供《Higress AI 网关全解析》类公众号技术长文的四段结构、逐 Step 证据链、控制台自截与脱敏、ima 笔记推送；另含 wechat-geek-dark-theme 公众号暗色排版主题。",
+      "version": "1.1.0",
       "source": "./tech-article-write-pack"
     }
   ]

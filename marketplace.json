@@ -20,8 +20,8 @@
     },
     {
       "name": "tech-article-write-pack",
-      "description": "技术文章写作技能包：编排 tool-review-writer 调度 doc-coauthoring、diagram-design、scientific-humanization、humanizer-zh 四个技能，覆盖开源工具评测长文、文档共创、架构图绘制、科研文本人化、中文去模板腔全流程；另含 wechat-geek-dark-theme 公众号暗色排版主题。",
-      "version": "1.0.0",
+      "description": "技术文章写作技能包：tool-review-writer 编排 doc-coauthoring、diagram-design、scientific-humanization、humanizer-zh，覆盖评测长文三类骨架（读源码+安装实操 / 拿来即用 MCP·Skill / 公众号四段式）、事实台账、原理图出图、实操截图与微信 HTML；wechat-tech-article 提供《Higress AI 网关全解析》类公众号技术长文的四段结构、逐 Step 证据链、控制台自截与脱敏、ima 笔记推送；另含 wechat-geek-dark-theme 公众号暗色排版主题。",
+      "version": "1.1.0",
       "source": "./tech-article-write-pack"
     }
   ]

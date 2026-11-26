@@ -3,8 +3,10 @@
  * Lint a review draft: structure, image refs, evidence ledger, claim strength,
  * and optional public-account (wechat) layout limits.
  *
- *   node lint_article.cjs <draft.md> [--track a|b] [--facts <facts.md>] [--wechat]
+ *   node lint_article.cjs <draft.md> [--track a|b|c|skip] [--facts <facts.md>] [--wechat] [--plain]
  *
+ * --plain      正文不内联 [E##]（台账仍保留编号）；跳过「判断句须挂标记」「台账须被引用」两类 WARN。
+ * --track skip 跳过章节名校验，用于公众号四段式或自定义结构。
  * Exit 0 = clean or warnings only. Exit 1 = at least one FAIL.
  */
 'use strict';
@@ -21,10 +23,10 @@ const METRIC =
   /\d+(?:\.\d+)?\s*(?:%|倍|ms|s|秒|分钟|小时|行|个|条|篇|次|万|MB|GB|KiB|MiB|tokens|字)|\d+\s*(?:核|路|并发)/;
 
 function parse(argv) {
-  const o = { wechat: false, facts: null, track: null };
+  const o = { wechat: false, plain: false, facts: null, track: null };
   const args = argv.slice(2);
   if (!args.length || args[0].startsWith('--')) {
-    console.log('用法: node lint_article.cjs <draft.md> [--track a|b] [--facts facts.md] [--wechat]');
+    console.log('用法: node lint_article.cjs <draft.md> [--track a|b|c|skip] [--facts f.md] [--wechat] [--plain]');
     process.exit(2);
   }
   o.md = args.shift();
@@ -32,9 +34,11 @@ function parse(argv) {
     if (args[i] === '--facts') o.facts = args[++i];
     else if (args[i] === '--track') o.track = args[++i];
     else if (args[i] === '--wechat') o.wechat = true;
+    else if (args[i] === '--plain') o.plain = true;
     else throw new Error(`未知参数 ${args[i]}`);
   }
-  if (o.track && !TRACKS[o.track]) throw new Error('--track 只能是 a 或 b');
+  if (o.track && o.track !== 'skip' && !TRACKS[o.track])
+    throw new Error('--track 只能是 a、b、c 或 skip');
   return o;
 }
 
@@ -95,11 +99,11 @@ function main() {
     if (h && !inFence(i + 1)) headings.push({ title: h[1].trim(), line: i + 1 });
   });
 
-  // 1. structure
+  // 1. structure（--track skip 跳过章节校验，用于公众号/自定义结构）
   const track = o.track || detectTrack(headings.map((h) => h.title));
-  const spec = TRACKS[track];
+  const spec = track === 'skip' ? { name: '自定义结构（跳过章节校验）', sections: [] } : TRACKS[track];
   for (const [title] of spec.sections) {
-    const want = title.replace(/^\d+\.\s*/, '');
+    const want = title.replace(/^\d+\.\s*/, '').replace(/^[一二三四五六七八九十]+、\s*/, '');
     if (!headings.some((h) => h.title.includes(want)))
       fails.push(`${path.basename(mdPath)} [${spec.name}] 缺章节「${title}」`);
   }
@@ -121,7 +125,7 @@ function main() {
     for (const m of line.matchAll(/\[(E\d{2,})\]/g)) cited.add(m[1]);
     const bare = stripInline(line);
     const judged = STRONG.test(bare) || METRIC.test(bare);
-    if (judged && !/\[E\d{2,}\]/.test(line)) {
+    if (!o.plain && judged && !/\[E\d{2,}\]/.test(line)) {
       if (STRONG.test(bare))
         push(warns, n, `判断句没有挂 [E##]：${bare.trim().slice(0, 46)}`);
       else push(warns, n, `带数字但没有 [E##]：${bare.trim().slice(0, 46)}`);
@@ -153,7 +157,7 @@ function main() {
       for (const u of unhedged)
         push(warns, u.n, `[${id}] 是 author-claim，这句话没写「声称/README 说」之类归因`);
     }
-    if (!cited.has(id) && f.fields.claim && !/^一句话结论$/.test(f.fields.claim))
+    if (!o.plain && !cited.has(id) && f.fields.claim && !/^一句话结论$/.test(f.fields.claim))
       warns.push(`facts.md:${f.line} ${id} 正文里没引用（删掉或在用到时挂上）`);
   }
 
@@ -187,7 +191,7 @@ function main() {
     });
   }
 
-  console.log(`track=${track}（${spec.name}）  章节 ${headings.length}  台账 ${facts.size}  引用 ${cited.size}`);
+  console.log(`track=${track}（${spec.name}）  章节 ${headings.length}  台账 ${facts.size}  引用 ${cited.size}${o.plain ? '  [plain：内联标记可选]' : ''}`);
   for (const f of fails) console.log(`FAIL  ${f}`);
   for (const w of warns) console.log(`WARN  ${w}`);
   console.log(`${fails.length} FAIL, ${warns.length} WARN`);

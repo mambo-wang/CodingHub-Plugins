@@ -22,20 +22,20 @@ node scripts/capture_cli.cjs "首次索引" --id 05 --out <文章目录>/shots -
 - Windows 下子进程输出常是 GBK，脚本按 UTF-8 严格解码失败后自动退回 GBK，摘要里会打 `codec=gbk`。需要强制时加 `--encoding gbk|utf-8`。
 - 命令里含密钥时，先确认这条命令要不要进正文；要进就把参数换成占位符另存一张，别把真密钥画进图。
 
-## 2. 网页 / 桌面 UI：browser-use MCP
+## 2. 网页 / 桌面 UI：无头 Chrome 自截为首选
 
-MCP 服务器面板、Web 控制台、带界面的工具用这个：`navigate_page` → `take_snapshot`（拿到元素引用）→ 需要时 `click`/`fill` → `take_screenshot`。
+MCP 服务器面板、Web 控制台、带界面的工具，**首选 `scripts/web-shot.mjs`**（无头 Chrome + CDP，Node ≥22），全流程见 [screenshots.md](screenshots.md)：登录取 cookie → `SHOT_EVAL` 点开目标态 → `SHOT_CLIP` 只截文章要的那块元素 → `SHOT_H` 先量高防裁 → 先脱敏再插。
 
-- 截图前先 `take_snapshot` 确认页面已经到位，别截加载中的骨架屏。
-- 全页截图用 `fullPage`；只想留关键区时截视口。
-- 落到 `shots/` 后按同一命名法改名（`NN-ASCII名.png`），并另存一份当时的 URL 和步骤到 `.txt`，否则三个月后没人知道这张图对应哪次操作。
-- 隐私：截图前确认页面上没有 token、cookie、内部仓库名。有就先滚动或遮挡，必要时改用 CLI。
+- **为什么不用应用内浏览器（browser-use MCP）当主力**：它在 SPA 上常报 `NATIVE_BROWSER_VIEWPORT_UNAVAILABLE`，合成点击也常常落空。browser-use 退居辅助：`take_snapshot` 探 DOM 定选择器、非 SPA 的静态页快速看一眼；真正要进正文的元素级截图走 web-shot。
+- **只截重点元素，不截整屏**（铁律 6）：侧栏、顶栏、页脚、版本号不进图——版本归属由正文承担。整屏帧算返工。默认态未必是文章要的那一态，截前用 `SHOT_EVAL` 的 `EVAL>` 返回值确认点没点中、抽屉开没开。
+- 落到 `imgs/note/`（发布腿）或 `shots/`（内网腿），按命名法改名，并另存一份当时的 URL 和 `SHOT_EVAL` 关键动作到台账，否则三个月后没人知道这张图对应哪次操作、怎么重截。
+- 隐私：截图前逐张扫描凭证格子、终端提示符、浏览器地址栏/书签、右上角账号标识、监控变量框（screenshots.md 第 3 节）；命中就涂，涂完重新打开目检。脱敏改规则要重拍，别只在像素上抹。
 
 ## 3. Agent 会话轨迹（B 类）
 
 Skill / MCP 的核心证据是"它到底做了什么"。两种取法：
 
-- 会话面板截图（browser-use）。
+- 会话面板截图（`web-shot.mjs`，见 [screenshots.md](screenshots.md)；browser-use 仅辅助探 DOM）。
 - 把工具调用序列整理成文本卡：用 `capture_cli.cjs` 的卡片样式手写一份 `.html`，再用 `html2png.py` 出图。保留调用名与参数，去掉无关的推理长文。
 
 轨迹必须包含它**没**按规则做的那一次，否则第 5 节的拷问没有依据。

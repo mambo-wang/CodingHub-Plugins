@@ -50,7 +50,7 @@ const fm = [
 ].join('\n');
 
 const body = spec.sections
-  .map(([h, hint]) => `## ${h}\n\n> ${hint}\n\n待填。判断句末尾用 [E01] 指向 facts.md。\n`)
+  .map(([h, hint]) => `## ${h}\n\n> ${hint}\n\n待填。判断句要能指回 facts.md（内联 [E01] 可选，发布稿可省，附录给编号段对照即可）；机制断言用版本锚 + 标识符名 + 运行证据，不写源码行号。\n`)
   .join('\n---\n\n');
 
 fs.writeFileSync(draftPath, `${fm}# ${title || slug}\n\n${body}`, 'utf8');
@@ -60,7 +60,7 @@ fs.writeFileSync(
   [
     '# 事实台账',
     '',
-    '每条事实一个编号，正文用 [E01] 引用。strength 只有四种：',
+    '每条事实一个编号（E01…）。正文可内联 [E01] 引用，也可只在附录给编号段对照（发布稿常省内联标记）。strength 只有四种：',
     '`measured`（本机跑出来的）· `read-code`（读源码得到的）· `author-claim`（对方 README/官网自称）· `inferred`（推断，正文必须写成推测）。',
     '',
     '## E01',
